@@ -1,0 +1,171 @@
+#!/bin/bash
+#
+# actors-list
+#
+# author: dooley@tacc.utexas.edu
+#
+# This script is part of the Agave API command line interface (CLI).
+# It retrieves a list of container-based event actors available to the
+# current user
+#
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+source "$DIR/common.sh"
+
+# Script logic -- TOUCH THIS {{{
+
+# A list of all variables to prompt in interactive mode. These variables HAVE
+# to be named exactly as the longname option definition in usage().
+interactive_opts=(access_token apikey)
+
+# Print usage
+usage() {
+  echo -n "$(basename $0) [OPTION]...
+$(basename $0) [OPTION]... [APP_ID]
+
+List all event actors available to the user. Results can be filtered by
+partial image and status. A more flexible solution is provided
+by the actors-search command.
+
+ Options:
+  -z, --access_token    Access token
+  -l, --limit           Maximum number of results to return
+  -o, --offset          Number of results to skip from the start
+      --filter          Comma separated list of fields to return in the response
+  -H, --hosturl         URL of the service
+  -d, --development     Run in dev mode using default dev server
+  -f, --force           Skip all user interaction
+  -i, --interactive     Prompt for values
+  -q, --quiet           Quiet (no output)
+  -v, --verbose         Verbose output
+  -V, --veryverbose     Very verbose output
+  -h, --help            Display this help and exit
+      --version         Output version information and exit
+"
+}
+
+##################################################################
+##################################################################
+#						Begin Script Logic						 #
+##################################################################
+##################################################################
+
+source "$DIR/actors-common.sh"
+
+main() {
+	#echo -n
+	#set -x
+
+  	querystring="pretty=true$(pagination)"
+
+	hosturl=${hosturl%/}
+	if [ -n "$args" ]; then
+
+		hosturl="$hosturl/$args"
+	else
+
+		imageQuery=''
+		if [ -n "$image" ]; then
+			imageQuery="image=$image"
+		fi
+
+		statusQuery=''
+		if [ -n "$tag" ]; then
+			statusQuery="status=$status"
+		fi
+	fi
+
+	cmd="curl -sk -H \"${authheader}\" '$hosturl?${querystring}'"
+
+	if ((veryverbose)); then
+		[ "$piped" -eq 0 ] && log "Calling $cmd"
+	fi
+
+	response=`curl -sk -H "${authheader}" "$hosturl?${querystring}"`
+
+	if [[ $(jsonquery "$response" "status") = 'success' ]]; then
+		result=$(format_api_json "$response")
+		success "$result"
+	else
+		errorresponse=$(jsonquery "$response" "message")
+		err "$errorresponse"
+	fi
+
+
+}
+
+format_api_json() {
+
+	if ((veryverbose)); then
+		json_prettyify "$1"
+	elif [[ $verbose -eq 1 ]]; then
+		result=$(jsonquery "$1" "result" 1)
+		json_prettyify "${result}"
+	else
+		if [ -n "$args" ]; then
+			id=($(jsonquery "$1" "result.id"))
+			image=($(jsonquery "$1" "result.image"))
+			name=($(jsonquery "$1" "result.name"))
+
+			echo "$id - $name $image"
+		else
+			ids=($(jsonquery "$1" "result.[].id"))
+			images=($(jsonquery "$1" "result.[].image"))
+			names=($(jsonquery "$1" "result.[].name"))
+
+			n=0
+			for i in "${ids[@]}"; do
+				echo "${ids[$i]} - ${names[$i]} ${images[$i]}"
+			done
+		fi
+		echo "${result}"
+	fi
+}
+
+##################################################################
+##################################################################
+#						End Script Logic						 #
+##################################################################
+##################################################################
+
+# }}}
+
+# Parse command line options
+source "$DIR/options.sh"
+
+
+# Main loop {{{
+
+# Print help if no arguments were passed.
+#[[ $# -eq 0 ]] && set -- "--help"
+
+# Read the options and set stuff
+while [[ $1 = -?* ]]; do
+  case $1 in
+    -h|--help) usage >&2; safe_exit ;;
+    --version) version; copyright; disclaimer; safe_exit ;;
+    -z|--access_token) shift; access_token=$1 ;;
+    -l|--limit) shift; limit=$1;;
+    -o|--offset) shift; offset=$1;;
+    --filter) shift; responsefilter=$1 ;;
+    -H|--hosturl) shift; hosturl=$1;;
+  	-d|--development) development=1 ;;
+    -v|--verbose) verbose=1 ;;
+    -V|--veryverbose) veryverbose=1; verbose=1 ;;
+    -q|--quiet) quiet=1 ;;
+    -i|--interactive) interactive=1 ;;
+    -f|--force) force=1 ;;
+    --endopts) shift; break ;;
+    *) die "invalid option: $1" ;;
+  esac
+  shift
+done
+
+# Store the remaining part as arguments.
+args+=("$@")
+
+# }}}
+
+# Run the script logic
+source "$DIR/runner.sh"

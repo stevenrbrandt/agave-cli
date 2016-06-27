@@ -35,7 +35,7 @@ transforms-apply
 auth-filter.sh
 auth-switch-filter.sh
 playground
-actors-*
+#actors-*
 transfers-*
-
+#transforms-
 *.pyc
