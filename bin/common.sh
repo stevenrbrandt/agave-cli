@@ -48,6 +48,7 @@ quiet=0
 verbose=0
 veryverbose=0
 interactive=0
+defaultLimit=250
 development=$( (("$AGAVE_DEVEL_MODE")) && echo "1" || echo "0" )
 
 disable_cache=0 # set to 1 to prevent using auth cache.
@@ -281,7 +282,18 @@ function getpagination {
 }
 
 function pagination {
-  getpagination $limit $offset
+
+  # Make sure there's always a limit passed in
+  # as the first value to function below.
+  if [[ -v limit ]] ; then 
+    # The value explicitly set on input by the user.
+    localLimit=$limit
+  else
+    # Last resort.
+    localLimit=$defaultLimit
+  fi
+ 
+  getpagination $localLimit $offset
 }
 
 function jsonquery {
