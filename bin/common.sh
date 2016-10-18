@@ -29,10 +29,20 @@ fi
 
 # versioning info
 version="v2"
-release="2.1.6"
-if [ -e "$DIR/../.git/refs/heads/master" ];
+release="2.1.9"
+revision=""
+if [ -e "$DIR/../.git" ];
 then
-  revision="${version}-r$(head -c 5 $DIR/../.git/refs/heads/master)"
+  revision=$(git --git-dir=$DIR/../.git rev-parse --short HEAD)
+  if [[ -n "$revision" ]];
+  then
+    revision="${version}-r$revision"
+  elif [ -e "$DIR/../.git/refs/heads/master" ];
+  then
+    revision="${version}-r$(git --git-dir=$DIR/../.git rev-parse --short HEAD)"
+  else
+    revision="${version}"
+  fi
 else
   revision="${version}"
 fi
@@ -160,7 +170,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function disclaimer() {
 	out "Documentation on the Agave API, client libaries, and developer tools is
-available online at the Agave Developer Portal, http://agaveapi.co. For
+available online from the Agave Website, http://agaveapi.co. For
 localized help of the various CLI commands, run any command with the -h
 or --help option.
 "
@@ -262,26 +272,25 @@ function trim() {
 	echo -n "$var"
 }
 
-function getpagination {
-  pagination=''
-  re='^[0-9]+$'
-  if [[ $1 =~ $re ]] ; then
-    pagination="&limit=$1"
-  fi
-
-  if [[ $2 =~ $re ]] ; then
-    pagination="${pagination}&offset=$2"
-  fi
-
-  if [[ -n "$responsefilter" ]]; then
-    pagination="${pagination}&filter=$responsefilter"
-  fi
-  
-  echo $pagination
-}
-
+# Adds the pagination params to each curl call by checking and formatting the url query
+# values associated with the $limit, $offset, and $filter variables common to all scripts.
 function pagination {
-  getpagination $limit $offset
+
+	pagination=''
+	re='^[0-9]+$'
+	if [[ "$limit" =~ $re ]] ; then
+		pagination="&limit=$limit"
+	fi
+
+	if [[ "$offset" =~ $re ]] ; then
+		pagination="${pagination}&offset=$offset"
+	fi
+
+	if [[ -n "$responsefilter" ]]; then
+		pagination="${pagination}&filter=$responsefilter"
+	fi
+
+	echo $pagination
 }
 
 function jsonquery {
@@ -587,7 +596,9 @@ function get_token_remaining_time() {
   if [[ -z "$expires_in" ]] || [[ -z "$created_at" ]]; then
     echo 0
   else
-  	expiration_time=`expr $created_at + $expires_in`
+    created_at=${created_at%.*}
+	expires_in=${expires_in%.*}
+	expiration_time=`expr $created_at + $expires_in`
   	current_time=`date +%s`
 
   	time_left=`expr $expiration_time - $current_time`

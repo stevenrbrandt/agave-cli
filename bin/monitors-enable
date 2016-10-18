@@ -1,11 +1,11 @@
 #!/bin/bash
 #
-# requestbin-create
+# monitors-enable
 #
 # author: dooley@tacc.utexas.edu
 #
 # This script is part of the Agave API command line interface (CLI).
-# It create an ephimeral requestbin using Agave's hosted service.
+# Toggles the availability of the monitor on.
 #
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -16,25 +16,26 @@ source "$DIR/common.sh"
 
 # A list of all variables to prompt in interactive mode. These variables HAVE
 # to be named exactly as the longname option definition in usage().
-interactive_opts=()
+interactive_opts=(apisecret apikey)
 
 # Print usage
 usage() {
-  echo -n "$(basename $0) [OPTION]...
+  echo -n "$(basename $0) [OPTION]... [SYSTEM_ID]
 
-Creates a new RequestBin instance you can use as a callback
-for webhook testing.
+Toggles the availability of the monitor on.
 
  Options:
-  -H, --hosturl        URL of the service
-  -d, --development    Run in dev mode using default dev server
-  -f, --force          Skip all user interaction
-  -i, --interactive    Prompt for values
-  -q, --quiet          Quiet (no output)
-  -v, --verbose        Verbose output
-  -V, --veryverbose    Very verbose output
-  -h, --help           Display this help and exit
-      --version        Output version information and exit
+  -z, --access_token    Access token
+      --filter          Comma separated list of fields to return in the response
+  -H, --hosturl         URL of the service
+  -d, --development     Run in dev mode using default dev server
+  -f, --force           Skip all user interaction
+  -i, --interactive     Prompt for values
+  -q, --quiet           Quiet (no output)
+  -v, --verbose         Verbose output
+  -V, --veryverbose     Very verbose output
+  -h, --help            Display this help and exit
+      --version         Output version information and exit
 "
 }
 
@@ -44,40 +45,44 @@ for webhook testing.
 ##################################################################
 ##################################################################
 
-source "$DIR/requestbin-common.sh"
+source "$DIR/monitors-common.sh"
 
 main() {
 	#echo -n
 	#set -x
 
-    cmd="curl -sk -X POST '${hosturl}api/v1/bins'"
-
-	if ((veryverbose)); then
-		[ "$piped" -eq 0 ] && log "Calling $cmd"
-	fi
-
-	response=`curl -sk -X POST ${hosturl}api/v1/bins`
-
-	if [[ -n $(jsonquery "$response" "name") ]]; then
-		result=$(format_api_json "$response")
-		success "$result"
+	if [ -z "$args" ]; then
+		err "Please specify a valid monitor id to enable"
 	else
-		errorresponse=$(jsonquery "$response" "error")
-		err "$errorresponse"
+
+		cmd="curl -sk -H \"${authheader}\" -H "Content-Type: application/json" -X PUT -d '{\"action\":\"enable\"}' '$hosturl$args?pretty=true'"
+
+		if ((veryverbose)); then
+			[ "$piped" -eq 0 ] && log "Calling $cmd"
+		fi
+
+		response=`curl -sk -H "${authheader}" -H "Content-Type: application/json" -X PUT --date-binary '{"action":"disable"}'  "$hosturl$args?pretty=true"`
+
+		if [[ $(jsonquery "$response" "status") = 'success' ]]; then
+			result=$(format_api_json "$response")
+			success "$result"
+		else
+			errorresponse=$(jsonquery "$response" "message")
+			err "$errorresponse"
+		fi
 	fi
-
-
 }
 
 format_api_json() {
 
 	if ((veryverbose)); then
-		json_prettyify "${1}"
-	elif (($verbose)); then
-		json_prettyify "${1}"
+		echo "$1"
+	elif [[ $verbose -eq 1 ]]; then
+		result=$(jsonquery "$1" "result" 1)
+		json_prettyify "${result}"
 	else
-		binname=$(jsonquery "$1" "name")
-		echo "${hosturl}${binname}"
+		monitor_id=$(jsonquery "$1" "result.id")
+		echo "Successfully enabled $monitor_id"
 	fi
 }
 
@@ -92,17 +97,20 @@ format_api_json() {
 # Parse command line options
 source "$DIR/options.sh"
 
+
 # Main loop {{{
 
 # Print help if no arguments were passed.
-#[[ $# -eq 0 ]] && set -- "--help"
+[[ $# -eq 0 ]] && set -- "-i"
 
 # Read the options and set stuff
 while [[ $1 = -?* ]]; do
   case $1 in
     -h|--help) usage >&2; safe_exit ;;
     --version) version; copyright; disclaimer; safe_exit ;;
-    -H|--hosturl) shift; hosturl=$1;;
+    -z|--access_token) shift; access_token=$1 ;;
+    --filter) shift; responsefilter=$1;;
+    -H|--hosturl) shift; hosturl=$1 ;;
   	-d|--development) development=1 ;;
     -v|--verbose) verbose=1 ;;
     -V|--veryverbose) veryverbose=1; verbose=1 ;;
