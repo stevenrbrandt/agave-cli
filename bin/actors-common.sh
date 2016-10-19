@@ -12,7 +12,7 @@ filter_service_url() {
 		if ((development)); then 
 			hosturl="$devurl/actors/"
 		else
-			hosturl="$baseurl/actors/v1/"
+			hosturl="$baseurl/actors/v2/"
 		fi
 	fi
 }
