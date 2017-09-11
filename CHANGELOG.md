@@ -1,6 +1,20 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+
+## 2.2.6.0 - 2017-11-09
+### ADDED
+- No changes.
+
+### FIXED
+- Fixed auth and response parsing issue in `auth-tokens-revoke`
+- Updated repository references with Github URL.
+- Bumping version to match latest hosted version of public tenant.  
+
+### REMOVED
+- No changes.
+
+
 ## 2.1.9.0 - 2016-10-14
 ### ADDED
 - `uuid-lookup` script to resolve generic uuid and optionally return the full object representation. Relies on the beta `/uuids` API.
@@ -15,7 +29,7 @@ All notable changes to this project will be documented in this file.
 
 ## 2.1.8.1 - 2016-07-13
 ### ADDED
-- `Dockerfile` to build a minimal image with embedded webhook server written in Golang and `ngrok.com` reverse tunnel for local webhook inspection behind a proxy. 
+- `Dockerfile` to build a minimal image with embedded webhook server written in Golang and `ngrok.com` reverse tunnel for local webhook inspection behind a proxy.
 
 ### FIXED
 - Fixed a bug in `systems-roles-addupdate` where the curl statement was misprinting.
@@ -29,7 +43,7 @@ All notable changes to this project will be documented in this file.
 - `jobs-kick` command to roll a job back to its previous status and retry processing from there.
 - Added search support to the `monitors-checks-list` command.
 - Added support for specify custom notification delivery retry policy in the `notifications-addupdate` script.
-- Adding support for strict validation of inputs and paramters in the `jobs-resubmit` script. You can now use the `-I` and `--strictinputs` to enforce strict reproducibility on the submissi    on syntax and `-P` and  `--strictparams` to enforce strict reproducibility on the input syntax. Thes allow you to shield yourself against changes to the app descriptions that would otherwise silently go through. 
+- Adding support for strict validation of inputs and paramters in the `jobs-resubmit` script. You can now use the `-I` and `--strictinputs` to enforce strict reproducibility on the submissi    on syntax and `-P` and  `--strictparams` to enforce strict reproducibility on the input syntax. Thes allow you to shield yourself against changes to the app descriptions that would otherwise silently go through.
 
 ### FIXED
 - Fixed a bug in `monitors-addupdate` preventing json descriptions from being read from stdin.

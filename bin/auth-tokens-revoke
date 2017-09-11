@@ -42,6 +42,8 @@ to obtain the auth token to revoke it.
   -s, --apisecret      Consumer secret
   -k, --apikey         Consumer Key
   -S, --storetoken     Removes the revoked credential from the local cache
+  -D, --displayonly    Display the fetched auth credentials, but do not save. The local auth cache
+                       will not be updated
   -H, --hosturl        URL of the service
   -d, --development    Run in dev mode using default dev server
   -f, --force          Skip all user interaction
@@ -64,18 +66,22 @@ source "$DIR/auth-common.sh"
 
 main() {
 	#echo -n
-	#set -x
+
 	hosturl=${hosturl%/}/revoke
 
 	# invalidate the access token given as an argument
 	# if present, otherwise use the token from the
 	# user's auth cache.
-	if [[ -z "$1" ]]; then
+	if [[ -z "$args" ]]; then
 		token_to_revoke="$access_token"
 	else
-		token_to_revoke="$1"
+		token_to_revoke="$args"
 	fi
 
+
+  if [[ -z "$token_to_revoke" ]]; then
+    err "No token found in the current environment cache. Please provide a valid access token to revoke"
+  fi
 
 	cmd="curl -sku \"$apikey:$apisecret\" -X POST -d 'token=$token_to_revoke' '$hosturl'"
 
@@ -83,14 +89,15 @@ main() {
 		[ "$piped" -eq 0 ] && log "Calling $cmd"
 	fi
 
-	response=`json_prettyify $(curl -sku "$apikey:$token_to_revoke" -X POST -d "token=$access_token" "$hosturl")`
+	response=`curl -sku "$apikey:$apisecret" -X POST -d "token=$token_to_revoke" "$hosturl"`
 
-	if [[ -z "$response" ]]; then
-		response="{\"status\":\"success\",\"message\":\"Token successfully revoked.\",\"result\": null}"
+  if [[ -n "$response" ]]; then
+    response=$(json_prettyify "$response")
+		err "{\"status\":\"error\",\"message\":\"$(jsonquery "$response" "error_description")\",\"result\": null}"
+	else
+    response="{\"status\":\"success\",\"message\":\"\",\"result\": null}"
 		result=$(format_api_json "$response")
 		success "$result"
-	else
-		err "{\"status\":\"error\",\"message\":\"$(jsonquery "$response" "error_message")\",\"result\": null}"
 	fi
 }
 
@@ -107,7 +114,7 @@ format_api_json() {
 	elif [[ $verbose -eq 1 ]]; then
 		json_prettyify "${1}"
 	else
-		echo "Token for ${tenantid}:${username} successfully revoked";
+		echo "Token $token_to_revoke successfully revoked";
 	fi
 }
 
@@ -128,6 +135,7 @@ source "$DIR/options.sh"
 # Print help if no arguments were passed.
 [[ $# -eq 0 ]] && set -- "-i"
 
+
 # Read the options and set stuff
 while [[ $1 = -?* ]]; do
   case $1 in
@@ -136,6 +144,7 @@ while [[ $1 = -?* ]]; do
     -s|--apisecret) shift; apisecret=$1 ;;
     -k|--apikey) shift; apikey=$1 ;;
     -S|--storetoken) storetoken=1 ;;
+    -D|--displayonly) storetoken=0 ;;
     -H|--hosturl) shift; hosturl=$1;;
   	-d|--development) development=1 ;;
     -v|--verbose) verbose=1 ;;
