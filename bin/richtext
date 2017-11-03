@@ -8,23 +8,31 @@
 apps-history:		status createdBy created description
 apps-list:		id executionSystem revision isPublic lastModified
 apps-search:		id executionSystem revision isPublic lastModified
-#apps-search:		id name version revision isPublic lastModified
+
+### auth commands ###
+auth-tokens-create:		access_token refresh_token expires_in
 
 ### clients commands ###
-clients-list:		name consumerKey
+clients-list:		name consumerKey callbackUrl
+clients-create:		name consumerKey callbackUrl
+
+clients-subscriptions-list:		apiName apiVersion apiStatus tier apiProvider  apiContext
+clients-subscriptions-update:	apiName apiVersion apiStatus tier apiProvider  apiContext
 
 ### files commands ###
 files-history:		status created description
 files-list:		name length permissions type lastModified
 
+
 ### jobs commands ###
 jobs-history:		status created description
 jobs-list:		name created startTime endTime status
-#jobs-list:		id name owner executionSystem appId status
 jobs-output-list:	name length permission type lastModified
 jobs-search:		id name owner executionSystem appId status
-#jobs-search:		name created startTime endTime
 jobs-tail:		id averageRate totalBytes totalBytesTransferred
+jobs-submit:		id name owner executionSystem appId status
+jobs-resubmit:		id name owner executionSystem appId status
+jobs-status:		id status
 
 ### metadata commands ###
 metadata-list:		uuid owner name created lastUpdated
@@ -36,12 +44,17 @@ profiles-list:		firstName lastName username email institution
 ### systems commands ###
 systems-history:	status createdBy created description
 systems-list:		id type status public default lastUpdated
-#systems-list:		id name
 systems-queues-list:	name maxJobs maxNodes maxProcessorsPerNode maxMemoryPerNode maxRequestedTime
-#systems-queues-list:	name load.running load.pending load.queued
 systems-roles-list:	username role
 systems-search:		id type status public default lastUpdated
-#systems-search:	id name
 
 ### tenants commands ###
-tenants-list:		name baseUrl contact.[].name contact.[].email
+tenants-list:		tenantCode name baseUrl contact.[].name contact.[].email
+
+### notifications commands ###
+notifications-list:     id event persistent status url
+notifications-search:     id event persistent status url
+
+### tenants commands ###
+monitors-list:      id target updateSystemStatus active frequency lastSuccess lastUpdated
+monitors-checks-list:      id target updateSystemStatus active frequency lastSuccess lastUpdated

@@ -146,6 +146,7 @@ _apps_list() {
 
     case "$prev" in
         -z|-t|-O|-l|-o|-H|-u|-N|-h|-F|-d|-v|-V|--rich) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         -n ) COMPREPLY=($(compgen -W "$(apps-search --filter=name -v name.like=${cur}* | grep "\"name\"" | sed 's/"//g' | sed 's/name\://g' | sed 's/ //g')" -- $cur)) ;;
         -S ) COMPREPLY=($(compgen -W "$(systems-search --filter=id name.like=${cur}*)" -- $cur)) ;;
         *) COMPREPLY=($(compgen -W "$(_check_cache 'APPS' "LISTINGS" \"apps-list --filter=id\")" -- $cur)) ;;
@@ -161,7 +162,8 @@ _apps_clone() {
 
     case "$prev" in
         -e) COMPREPLY=($(compgen -W "$(_check_cache 'SYSTEMS' 'execution' \"systems-search --filter=id type=EXECUTION\")" -- $cur)) ;;
-        -s) COMPREPLY=($(compgen -W "$(_check_cache 'SYSTEMS' 'storage' \"systems-search --filter=id type=STORAGE id.like=${cur}*\")" -- $cur)) ;;
+        -S|--systemId) COMPREPLY=($(compgen -W "$(_check_cache 'SYSTEMS' 'storage' \"systems-search --filter=id type=STORAGE id.like=${cur}*\")" -- $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
     # -p
         -z|-n|-x|-H|-h|-d|-v|-V|--rich) COMPREPLY=($(compgen -f $cur)) ;;
         *) COMPREPLY=($(compgen -W "$(_check_cache 'APPS' 'LISTINGS' 'apps-list --filter=id')" -- $cur)) ;;
@@ -175,8 +177,9 @@ _apps_pems_update() {
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     case "$prev" in
-        -u) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=username -U ${cur} | grep "\"username\"" | sed 's/"//g' | sed 's/username\://g' | sed 's/ //g')" -- $cur)) ;;
-        -p) COMPREPLY=($(compgen -W "READ WRITE EXECUTE READ_WRITE READ_EXECUTE WRITE_EXECUTE ALL NONE" -- $cur)) ;;
+        -u|--username) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=username -U ${cur} | grep "\"username\"" | sed 's/"//g' | sed 's/username\://g' | sed 's/ //g')" -- $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
+        -p|--permission) COMPREPLY=($(compgen -W "READ WRITE EXECUTE READ_WRITE READ_EXECUTE WRITE_EXECUTE ALL NONE" -- $cur)) ;;
         -z|-u|-H|-h|-d|-v|-V|--rich) COMPREPLY=($(compgen -f $cur)) ;;
         *) COMPREPLY=($(compgen -W "$(_check_cache 'APPS' 'LISTINGS' 'apps-list --filter=id')" -- $cur)) ;;
     esac
@@ -190,6 +193,7 @@ _apps_publish() {
 
     case "$prev" in
         -e) COMPREPLY=($(compgen -W "$(_check_cache 'SYSTEMS' 'execution' 'systems-search --filter=id type=EXECUTION')" -- $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         -z|-n|-x|-H|-h|-d|-v|-V|--rich) COMPREPLY=($(compgen -f $cur)) ;;
         *) COMPREPLY=($(compgen -W "$(_check_cache 'APPS' 'LISTINGS' 'apps-list --filter=id')" -- $cur)) ;;
     esac
@@ -208,7 +212,8 @@ _jobs_search() {
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     case "$prev" in
-        -z|-s|-l|-o|-H|-h|-N|-R|-u|-d|-v|-V|--rich) COMPREPLY=($(compgen -f $cur)) ;;
+        -z|-s|-l|-o|-H|-h|-N|-R|-u|-d|-v|-V|-F|-C|--rich) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=($(compgen -W "$(jobs-search --filter=id id.like=${cur}*)" -- $cur)) ;;
     esac
 }
@@ -220,8 +225,9 @@ _jobs_pems_update() {
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     case "$prev" in
-        -u) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=username -U ${cur} | grep "\"username\"" | sed 's/"//g' | sed 's/username\://g' | sed 's/ //g')" -- $cur)) ;;
-        -p) COMPREPLY=($(compgen -W "READ WRITE READ_WRITE ALL NONE" -- $cur)) ;;
+        -u|--username) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=username -U ${cur} | grep "\"username\"" | sed 's/"//g' | sed 's/username\://g' | sed 's/ //g')" -- $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
+        -p|--permission) COMPREPLY=($(compgen -W "READ WRITE READ_WRITE ALL NONE" -- $cur)) ;;
         -z|-u|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
         *) COMPREPLY=($(compgen -W "$(jobs-search --filter=id id.like=${cur}*)" -- $cur)) ;;
     esac
@@ -234,7 +240,8 @@ _jobs_run_this() {
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     case "$prev" in
-        -S) COMPREPLY=($(compgen -W "$(_check_cache 'SYSTEMS' 'LISTING' 'systems-search --filter=id')" -- $cur)) ;;
+        -S|--systemId) COMPREPLY=($(compgen -W "$(_check_cache 'SYSTEMS' 'LISTING' 'systems-search --filter=id')" -- $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=($(compgen -f $cur)) ;;
     esac
 }
@@ -248,6 +255,7 @@ _jobs_output() {
 
     case "$prev" in
         -z|-s|-l|-o|-H|-h|-N|-R|-u|-d|-v|-V|--rich) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=( $(_jobs_complete_uuid_our_output_path $cur $prev )) ;;
     esac
 
@@ -291,7 +299,7 @@ _jobs_complete_uuid_our_output_path() {
 
 
 complete -F _jobs_output jobs-output-get jobs-output-list
-complete -F _jobs_search jobs-search jobs-delete jobs-history jobs-kick jobs-pems-list jobs-resubmit jobs-status jobs-stop
+complete -F _jobs_search jobs-search jobs-delete jobs-history jobs-kick jobs-pems-list jobs-submit jobs-resubmit jobs-status jobs-stop
 complete -F _jobs_pems_update jobs-pems-update
 complete -F _jobs_run_this jobs-run-this
 
@@ -305,6 +313,7 @@ _metadata_list() {
 
     case "$prev" in
         -z|-Q|-P|-l|-o|-H|-h|-u|-F) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=($(compgen -W "$(metadata-list -Q '{"uuid":"'${cur}'.*"}')" -- $cur)) ;;
     esac
 }
@@ -316,9 +325,10 @@ _metadata_pems_addupdate() {
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     case "$prev" in
-        -u) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=username -U ${cur} | grep "\"username\"" | sed 's/"//g' | sed 's/username\://g' | sed 's/ //g')" -- $cur)) ;;
-        -p) COMPREPLY=($(compgen -W "READ WRITE READ_WRITE ALL NONE" -- $cur)) ;;
+        -u|--username) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=username -U ${cur} | grep "\"username\"" | sed 's/"//g' | sed 's/username\://g' | sed 's/ //g')" -- $cur)) ;;
+        -p|--permission) COMPREPLY=($(compgen -W "READ WRITE READ_WRITE ALL NONE" -- $cur)) ;;
         -z|-u|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=($(compgen -W "$(metadata-list)" -- $cur)) ;;
     esac
 }
@@ -330,7 +340,8 @@ _metadata_schema_list() {
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     case "$prev" in
-        -z|-Q|-P|-l|-o|-H|-h|F|-D|-u) COMPREPLY=($(compgen -f $cur)) ;;
+        -z|-Q|-P|-l|-o|-H|-h|F|-D|-u|--username) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=($(compgen -W "$(metadata-schema-list -Q '{"uuid":"${cur}.*"}')" -- $cur)) ;;
     esac
 }
@@ -342,9 +353,10 @@ _metadata_schema_pems_addupdate() {
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     case "$prev" in
-        -u) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=username -U ${cur} | grep "\"username\"" | sed 's/"//g' | sed 's/username\://g' | sed 's/ //g')" -- $cur)) ;;
-        -p) COMPREPLY=($(compgen -W "READ WRITE READ_WRITE ALL NONE" -- $cur)) ;;
+        -u|--username) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=username -U ${cur} | grep "\"username\"" | sed 's/"//g' | sed 's/username\://g' | sed 's/ //g')" -- $cur)) ;;
+        -p|--permission) COMPREPLY=($(compgen -W "READ WRITE READ_WRITE ALL NONE" -- $cur)) ;;
         -z|-u|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=($(compgen -W "$(metadata-schema-list -Q '{"uuid":"${cur}.*"}')" -- $cur)) ;;
     esac
 }
@@ -365,7 +377,8 @@ _monitors_list() {
     case "$prev" in
         -T) COMPREPLY=($(compgen -W "$(_check_cache 'SYSTEMS' 'LISTING' 'systems-search --filter=id')" -- $cur)) ;;
         -z|-l|-o|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
-        *) COMPREPLY=($(compgen -W "$( _check_cache 'MONITORS' 'LISTING' 'monitors-list --filter=id' )" -- $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
+        *) COMPREPLY=($(compgen -W "$( _check_cache 'MONITORS' 'LISTING' 'monitors-search --filter=id' )" -- $cur)) ;;
     esac
 }
 
@@ -380,10 +393,13 @@ _monitors_checks_list() {
 
 #    set -x
     case "$prev" in
-        -M) COMPREPLY=($(compgen -W "$(_check_cache 'MONITORS' 'LISTINGS' 'monitors-list --filter=id')" -- $cur)) ;;
-        -R) COMPREPLY=($(compgen -W "PASSED FAILED UNKNOWN" -- $cur)) ;;
-        -T) COMPREPLY=($(compgen -W "STORAGE LOGIN" -- $cur)) ;;
+        -M|--monitorId) COMPREPLY=($(compgen -W "$(_check_cache 'MONITORS' 'LISTINGS' 'monitors-list --filter=id')" -- $cur)) ;;
+        -S|--startDate) COMPREPLY=($(compgen -W "$(_check_cache 'MONITORS' 'LISTINGS' 'monitors-list --filter=id')" -- $cur)) ;;
+        -E|--endDate) COMPREPLY=($(compgen -W "$(_check_cache 'MONITORS' 'LISTINGS' 'monitors-list --filter=id')" -- $cur)) ;;
+        -R|--result) COMPREPLY=($(compgen -W "PASSED FAILED UNKNOWN" -- $cur)) ;;
+        -T|--type) COMPREPLY=($(compgen -W "STORAGE LOGIN" -- $cur)) ;;
         -z|-l|-o|-I|-A|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=($(compgen -W "$(_check_cache 'MONITORS' 'LISTINGS' ${_monitors_check_cmd})" -- $cur)) ;;
     esac
 #    set +x
@@ -396,15 +412,35 @@ _monitors_addupdate() {
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     case "$prev" in
-        -S) COMPREPLY=($(compgen -W "$(_check_cache 'SYSTEMS' 'LISTING' 'systems-search --filter=id')" -- $cur)) ;;
-        -z|-F|-I|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
-        *) COMPREPLY=($(compgen -W "$(_check_cache 'MONITORS' 'LISTING' 'monitors-list --filter=id')" -- $cur)) ;;
+        -z|-l|-o|-H|-h|-d|-f|-i|-q|-v|-V|--version) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
+        -S|--systemId) COMPREPLY=($(compgen -W "$(_check_cache 'SYSTEMS' 'LISTING' 'systems-search --filter=id')" -- $cur)) ;;
+        -A|--active) COMPREPLY=($(compgen -W "True False" -- $cur)) ;;
+        -U|--updateSystemStatus) COMPREPLY=($(compgen -W "True False" -- $cur)) ;;
+        -F|-I|--interval) COMPREPLY=($(compgen -f $cur)) ;;
+        *) COMPREPLY=($(compgen -W "$(_check_cache 'MONITORS' 'LISTING' 'monitors-search --filter=id')" -- $cur)) ;;
     esac
 }
 
-complete -F _monitors_list monitors-list monitors-delete monitors-fire monitors-history
-complete -F _monitors_checks_list monitors-checks-list
+complete -F _monitors_list monitors-list monitors-delete monitors-fire monitors-history monitors-enable monitors-disable
+complete -F _monitors_checks_list monitors-checks-list monitors-checks-addupdate
 complete -F _monitors_addupdate monitors-addupdate
+
+# transforms
+_transforms_list() {
+    COMPREPLY=()
+    local prev cur
+    cur=${COMP_WORDS[COMP_CWORD]}
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    case "$prev" in
+        -T) COMPREPLY=($(compgen -W "$(_check_cache 'SYSTEMS' 'LISTING' 'systems-search --filter=id')" -- $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
+        -z|-l|-o|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
+        *) COMPREPLY=($(compgen -W "$( _check_cache 'TRANSFORMS' 'LISTING' 'transforms-list --filter=name' )" -- $cur)) ;;
+    esac
+}
+
 
 # notifications
 
@@ -416,6 +452,7 @@ _notifications_list() {
 
     case "$prev" in
         -z|-U|-l|-o|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=($(compgen -W "$(_check_cache 'NOTIFICATIONS' 'LISTINGS' 'notifications-search --filter=id')" -- $cur)) ;;
     esac
 }
@@ -431,6 +468,7 @@ _notifications_list_failures() {
     case "$prev" in
         -z|-U|-l|-o|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
         -N) COMPREPLY=($(compgen -W "$(_check_cache 'NOTIFICATIONS' 'failures' ${_notification_list_failure_cmd})" -- $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=($(compgen -f $cur)) ;;
         #*) COMPREPLY=($(compgen -W "$(_check_cache 'NOTIFICATIONS' '' 'notifications-list-failures --filter=id')" -- $cur)) ;;
     esac
@@ -445,6 +483,7 @@ _notifications_addupdate() {
     case "$prev" in
         -R) COMPREPLY=($(compgen -W "IMMEDIATE DELAYED EXPONENTIAL" -- $cur)) ;;
         -z|-F|-U|-E|-D|-L|-I|-A|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=($(compgen -W "$(_check_cache 'NOTIFICATIONS' 'LISTINGS' 'notifications-search --filter=id')" -- $cur)) ;;
     esac
 }
@@ -460,7 +499,8 @@ _postits_list() {
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     case "$prev" in
-        -z|-U|-l|-o|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
+        -z|-l|-o|-H|-h|-d|-f|-i|-q|-v|-V|--version) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=($(compgen -W "$(_check_cache 'POSTITS' 'LISTINGS' 'postits-list --filter=id' | xargs -n 1 sh -c 'echo $0 | sed 's#^.*v2/##g'')" -- $cur)) ;;
     esac
 }
@@ -473,8 +513,13 @@ _postits_create() {
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     case "$prev" in
-        -z|-U|-l|-o|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
-        -M) COMPREPLY=( $(compgen -W "GET PUT POST DELETE" -- $cur ) ) ;;
+        -z|-l|-o|-H|-h|-d|-f|-i|-q|-v|-V|--version) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
+        -u|--internalUsername|-U|-N) COMPREPLY=($(compgen -f $cur)) ;;
+        -x|--apiusername) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=username -U ${cur} | grep "\"username\"" | sed 's/"//g' | sed 's/username\://g' | sed 's/ //g')" -- $cur)) ;;
+        -m|--maxUses) COMPREPLY=($(compgen -f $cur)) ;;
+        -l|--lifetime) COMPREPLY=($(compgen -f $cur)) ;;
+        -M|--method) COMPREPLY=( $(compgen -W "GET PUT POST DELETE" -- $cur ) ) ;;
         *) COMPREPLY=($(compgen -f $cur)) ;;
     esac
 }
@@ -482,35 +527,53 @@ _postits_create() {
 complete -F _postits_list postits-list postits-delete
 complete -F _postits_create postits-create
 
-# _postits_list completes the postit nonce on active postits for the user.
-_postits_list() {
+# _tags_list completes the tag name for the user.
+_tags_list() {
     COMPREPLY=()
     local prev cur
     cur=${COMP_WORDS[COMP_CWORD]}
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     case "$prev" in
-        -z|-U|-l|-o|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
-        *) COMPREPLY=($(compgen -W "$(_check_cache 'POSTITS' 'LISTINGS' 'postits-list --filter=id' | xargs -n 1 sh -c 'echo $0 | sed 's#^.*v2/##g'')" -- $cur)) ;;
+        -z|-l|-o|-H|-h|-d|-f|-i|-q|-v|-V|--version) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
+        *) COMPREPLY=($(compgen -W "$(_check_cache 'TAGS' 'LISTINGS' 'tags-list --filter=name')" -- $cur)) ;;
     esac
 }
 
-# _postits_create completes the postit method on new postits for the user.
-_postits_create() {
+# _tags_create completes the tag name for upates
+_tags_addupdate() {
     COMPREPLY=()
     local prev cur
     cur=${COMP_WORDS[COMP_CWORD]}
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     case "$prev" in
-        -z|-U|-l|-o|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
-        -M) COMPREPLY=( $(compgen -W "GET PUT POST DELETE" -- $cur ) ) ;;
-        *) COMPREPLY=($(compgen -f $cur)) ;;
+        -z|-l|-o|-H|-h|-d|-f|-i|-q|-v|-V|--version) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
+        -N|--name) COMPREPLY=($(compgen -W "$(_check_cache 'TAGS' 'LISTINGS' 'tags-list --filter=name')" -- $cur)) ;;
+        -U|--uuids) COMPREPLY=($(compgen -f $cur)) ;;
+        *) COMPREPLY=($(compgen -W "$(_check_cache 'TAGS' 'LISTINGS' 'tags-list --filter=name')" -- $cur)) ;;
     esac
 }
 
-complete -F _tags-list tags-list tags-delete
-complete -F _tags-create tags-create
+# _tags_associations completes the tag name and one or more associations for the user
+_tags_associations() {
+    COMPREPLY=()
+    local prev cur
+    cur=${COMP_WORDS[COMP_CWORD]}
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    case "$prev" in
+        -z|-l|-o|-H|-h|-d|-f|-i|-q|-v|-V|--version) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
+        *) COMPREPLY=($(compgen -W "$(_check_cache 'TAGS' 'LISTINGS' 'tags-list --filter=name')" -- $cur)) ;;
+    esac
+}
+
+complete -F _tags_list tags-list tags-delete
+complete -F _tags_addupdate tags-addupdate
+complete -F _tags_associations tags-associations-addupdate tags-associations-delete
 
 # _tenants_list
 _tenants_list() {
@@ -521,6 +584,7 @@ _tenants_list() {
 
     case "$prev" in
         -z|-U|-l|-o|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=($(compgen -W "$(_check_cache 'TENANTS' 'LISTING' 'tenants-list')" -- $cur)) ;;
     esac
 }
@@ -534,6 +598,7 @@ _tenants_init() {
     case "$prev" in
         -t) COMPREPLY=( $(compgen -W "$(_check_cache 'TENANTS' 'LISTING' 'tenants-list' |  xargs -n 1 sh -c 'echo $0')" -- $cur) ) ;;
         -z|-U|-l|-o|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=($(compgen -f $cur)) ;;
     esac
 }
@@ -550,6 +615,7 @@ _systems_list() {
 #    set -x
     case "$prev" in
         -z|-U|-l|-o|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=($(compgen -W "$(_check_cache 'SYSTEMS' 'LISTING' 'systems-search --filter=id')" -- $cur)) ;;
     esac
 #set +x
@@ -562,9 +628,10 @@ _systems_roles_update() {
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     case "$prev" in
-        -u) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=username -U ${cur} | grep "\"username\"" | sed 's/"//g' | sed 's/username\://g' | sed 's/ //g')" -- $cur)) ;;
-        -p) COMPREPLY=($(compgen -W "GUEST USER PUBLISHER ADMIN OWNER NONE" -- $cur)) ;;
+        -u|--username) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=username -U ${cur} | grep "\"username\"" | sed 's/"//g' | sed 's/username\://g' | sed 's/ //g')" -- $cur)) ;;
+        -p|--permission) COMPREPLY=($(compgen -W "GUEST USER PUBLISHER ADMIN OWNER NONE" -- $cur)) ;;
         -z|-u|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=($(compgen -W "$(_check_cache 'SYSTEMS' 'LISTING' 'systems-search --filter=id')" -- $cur)) ;;
     esac
 }
@@ -580,10 +647,11 @@ _profiles_list() {
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     case "$prev" in
-        -E) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=email -E ${cur} | grep "\"email\"" | sed 's/"//g' | sed 's/email\://g' | sed 's/ //g')" -- $cur)) ;;
-        -N) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=full_name,fullName -N ${cur} | grep "\"[full_name|fullName]\"" | sed 's/"//g' | sed 's/full_name\://g' | sed 's/fullName\://g' | sed 's/ //g')" -- $cur)) ;;
-        -U) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=username -U ${cur} | grep "\"username\"" | sed 's/"//g' | sed 's/username\://g' | sed 's/ //g')" -- $cur)) ;;
+        -E|--email) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=email -E ${cur} | grep "\"email\"" | sed 's/"//g' | sed 's/email\://g' | sed 's/ //g')" -- $cur)) ;;
+        -N|--name) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=full_name,fullName -N ${cur} | grep "\"[full_name|fullName]\"" | sed 's/"//g' | sed 's/full_name\://g' | sed 's/fullName\://g' | sed 's/ //g')" -- $cur)) ;;
+        -U|--username) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=username -U ${cur} | grep "\"username\"" | sed 's/"//g' | sed 's/username\://g' | sed 's/ //g')" -- $cur)) ;;
         -z|-l|-o|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=username -U ${cur} | grep "\"username\"" | sed 's/"//g' | sed 's/username\://g' | sed 's/ //g')" -- $cur)) ;;
     esac
 }
@@ -624,8 +692,55 @@ _files_list() {
 
 #    set -x
     case "$prev" in
-        -S) COMPREPLY=($(compgen -W "$(_check_cache 'SYSTEMS' 'LISTING' 'systems-search --filter=id')" -- $cur)) ;;
+        -S|--systemId) COMPREPLY=($(compgen -W "$(_check_cache 'SYSTEMS' 'LISTING' 'systems-search --filter=id')" -- $cur)) ;;
         -z|-l|-L|-o|-H|-h|-N|-d|-v|-V|--rich) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
+        *) COMPREPLY=( $( __dir_list  "${_cmd}" | grep "$cur") ) ;;
+    esac
+
+}
+
+# _files_getput handles completion on file path.
+# Due to potential performance issues, this is disabled by default.
+# You may enable file completion by setting
+# AGAVE_CLI_COMPLETION_SHOW_FILE_PATHS
+#   "no"  - Disable autocomplete (default)
+#   "yes" - Autocomplete file and folder names
+_files_getput() {
+    source $(which common.sh)
+
+    COMPREPLY=()
+    local prev cur _searchdir _cmd _cmd_system_id _system_arg _cmd_debug _debug_flag
+    cur=${COMP_WORDS[COMP_CWORD]}
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    # get the system id for this command
+    _cmd_system_id=$(__agave_value_of_option "--system|-S")
+    [[ -n "$_cmd_system_id" ]] && _system_arg="-S $_cmd_system_id "
+
+    # get debug option in case we're running against the non-default instance
+    _cmd_debug=$(__agave_flag_exists "-d|--debug")
+    [[ -n "$_cmd_debug" ]] && _debug_flag="-d "
+
+    searchdir=$(echo "${cur}" | sed 's#/$#/.#' | xargs dirname)
+#    cmd=$(echo ${COMP_LINE} | sed 's#--filter=[^ ]* ##g' | sed 's#-V ##g' | sed 's#-v ##g' | sed 's#-L ##g' |sed 's#-l [0-9]*##g' | sed 's#--limit [0-9]*##g' | sed 's#-o [0-9]*##g' | sed 's#-offset [0-9]*##g' | sed 's#--veryverbose ##g' | sed 's#'$cur'#-v --filter=name,path,type,_links.self '${searchdir}'#g')
+
+    _cmd="$(which files-list) $_debug_flag $_system_arg -v --filter=name,path,type,_links.self ${searchdir}"
+
+    file_filter=''
+    if [ -n "$cur" ] && [ "$searchdir" != "$cur" ]; then
+        file_filter=$(basename $cur 2>/dev/null)
+    fi
+
+#    set -x
+    case "$prev" in
+        -S|--systemId) COMPREPLY=($(compgen -W "$(_check_cache 'SYSTEMS' 'LISTING' 'systems-search --filter=id')" -- $cur)) ;;
+        -N|--filename) COMPREPLY=($(compgen -f $cur)) ;;
+        -F|--filetoupload) COMPREPLY=($(compgen -f $cur)) ;;
+        -C|--callbackurl) COMPREPLY=( $( __url_list "$_debug_flag" "${cur}" "${_cmd}" | grep "$cur" ) ) ;;
+        -z|-L|-o|-H|-h|-N|-d|-v|-V|-q|-i|-f|--rich) COMPREPLY=($(compgen -f $cur)) ;;
+        -T) COMPREPLY=($(compgen -W "$(_check_cache 'TRANSFORMS' 'LISTING' 'transforms-list --filter=name')" -- $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=( $( __dir_list  "${_cmd}" | grep "$cur") ) ;;
     esac
 
@@ -664,15 +779,16 @@ _files_pems() {
 
     #    set -x
     case "$prev" in
-        -U,-u) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=username -U ${cur} | grep "\"username\"" | sed 's/"//g' | sed 's/username\://g' | sed 's/ //g')" -- $cur)) ;;
-        -P,-p) COMPREPLY=($(compgen -W "READ WRITE READ_WRITE ALL NONE" -- $cur)) ;;
-        -S) COMPREPLY=($(compgen -W "$(_check_cache 'SYSTEMS' 'LISTING' 'systems-search --filter=id')" -- $cur)) ;;
+        -U|-u|--username) COMPREPLY=($(compgen -W "$(profiles-list -v --filter=username -U ${cur} | grep "\"username\"" | sed 's/"//g' | sed 's/username\://g' | sed 's/ //g')" -- $cur)) ;;
+        -P|-p|--permission) COMPREPLY=($(compgen -W "READ WRITE READ_WRITE ALL NONE" -- $cur)) ;;
+        -S|--systemId) COMPREPLY=($(compgen -W "$(_check_cache 'SYSTEMS' 'LISTING' 'systems-search --filter=id')" -- $cur)) ;;
         -z|-l|-L|-o|-H|-h|-N|-d|-v|-V|--rich) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=( $( __dir_list  "${_cmd}" | grep "$cur") ) ;;
     esac
 }
 
-# _files_pems handles completion on file path, username, and role.
+# _files_import handles completion on file path, username, and role.
 # Due to potential performance issues, this is disabled by default.
 # You may enable file completion by setting
 # AGAVE_CLI_COMPLETION_SHOW_FILES
@@ -705,10 +821,12 @@ _files_import() {
 
     #    set -x
     case "$prev" in
-        -U) COMPREPLY=( $( __url_list "$_debug_flag" "${cur}" "${_cmd}" | grep "$cur" ) ) ;;
+        -U|--urltoingest) COMPREPLY=( $( __url_list "$_debug_flag" "${cur}" "${_cmd}" | grep "$cur" ) ) ;;
         -P,-p) COMPREPLY=($(compgen -W "READ WRITE READ_WRITE ALL NONE" -- $cur)) ;;
-        -S) COMPREPLY=($(compgen -W "$(_check_cache 'SYSTEMS' 'LISTING' 'systems-search --filter=id')" -- $cur)) ;;
-        -z|-l|-L|-o|-H|-h|-N|-d|-v|-V|--rich) COMPREPLY=($(compgen -f $cur)) ;;
+        -S|--systemId) COMPREPLY=($(compgen -W "$(_check_cache 'SYSTEMS' 'LISTING' 'systems-search --filter=id')" -- $cur)) ;;
+        -z|-l|-L|-o|-H|-h|-F|-N|-d|-v|-V|--rich) COMPREPLY=($(compgen -W "" -- "${cur}") ) ;;
+        -W|--webhook) COMPREPLY=( $( __url_list "$_debug_flag" "${cur}" "${_cmd}" | grep "$cur" ) ) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=( $( __dir_list  "${_cmd}" | grep "$cur") ) ;;
     esac
 }
@@ -873,8 +991,10 @@ __url_list() {
     fi
 }
 
-complete -o nospace -F _files_list files-copy files-delete files-get files-history files-import files-index files-list files-mkdir files-move files-publish files-rename files-upload
+complete -o nospace -F _files_list files-copy files-delete files-get files-history files-index files-list files-mkdir files-move files-publish files-rename files-upload
+complete -o nospace -F _files_import files-import
 complete -o nospace -F _files_pems files-pems-list files-pems-update files-pems-delete
+complete -o nospace -F _files_getput files-upload files-get
 #complete -o nospace -F _files_import files-import
 
 # __agave_search provides completion on all `*-search` commands supporting
@@ -897,6 +1017,7 @@ __agave_search() {
 
     case "$prev" in
         -z|-l|-L|-o|-H|-h) COMPREPLY=($(compgen -f $cur)) ;;
+        --filter) COMPREPLY=( $(compgen -W "$(__agave_filter_comparator)" -- "${cur}") ) ;;
         *) COMPREPLY=( $(compgen -W "$(__agave_append_search_comparator)" -- "${cur}") ) ;;
     esac
 
@@ -931,3 +1052,60 @@ __agave_append_search_comparator() {
 }
 
 complete -o nospace -F __agave_search apps-search jobs-search monitors-search notifications-search systems-search tags-search transfers-search transforms-search groups-search postits-search profiles-search
+
+
+# __agave_filter_comparator handles the filter attribute generically across all commands
+# once $cur matches a search term. It is only after a search term has a valid matching operation
+# that is will be fully matched with an equal sign appended.
+#
+__agave_filter_comparator() {
+
+    local terms matches results filter_terms current_fields_string current_fields remaining_terms
+    # lookup the terms for the resource named by the originating command
+    terms=$(cat $(which $cmd) | sed -n '/ Query parameters\:/,/ Options/p' | grep -E '^  [a-zA-Z]+' | awk '{print $1}' | xargs -n 1 sh -c 'echo $0' )
+
+    # if the current term has a comma in it, complete the value after the comma as that is another field name.
+    # filter out fields already included
+
+    if [[ "${cur//,/ }" == "${cur}" ]]; then
+
+        matches=( $(compgen -W "${terms[@]}" -- "${cur}") )
+        echo "${matches[@]}"
+
+    else
+
+        # get everything before the last comma
+        current_fields_string="${cur%,*}"
+
+        # trim and explode to an array
+        #current_fields=( "${current_fields_string//,/ }" )
+        IFS=', ' read -r -a current_fields <<< "$current_fields_string"; unset IFS
+
+
+
+        remaining_terms=()
+        # get the current field set complement of terms
+        j=0
+        terms=( ${terms[@]} )
+        for i in "${terms[@]}"; do
+            foundit=0
+            for k in "${current_fields[@]}" ; do
+                if [[ "$i" == "$k" ]] || [[ "$i" == "${current_fields}" ]]; then
+                    foundit=1
+                    break
+
+                fi
+            done
+            if [[ $foundit -eq 0 ]]; then
+                remaining_terms+="$current_fields_string,$i "
+            fi
+            j=j+1
+        done
+
+        # return all fields not already present in the current value that matches the string after the last comma
+        matches=( $(compgen -W "${remaining_terms[@]}" -- "${cur}") )
+
+        echo "${matches[@]}"
+
+    fi
+}
