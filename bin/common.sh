@@ -36,7 +36,7 @@ fi
 
 # versioning info
 version="v2"
-release="2.2.11"
+release="2.1.10"
 revision=""
 if [ -e "$DIR/../.git" ];
 then
@@ -99,7 +99,7 @@ function out() {
   if (( pipe )); then
   	echo "$@"
   else
-  	printf "%b\n" "$message";
+  	printf '%b\n' "$message";
   fi
 }
 function die() { out "$@"; exit 1; } >&2
@@ -111,7 +111,7 @@ function err() {
 		response=$(get_xml_message "$1")
 		response=`json_prettyify $(to_json_error_message "$response")`
 	else
-		response="$@"
+		response=$@
 	fi
 
 	if (($verbose)); then
@@ -140,7 +140,7 @@ function success() {
 }
 
 function version() {
-	out "Agave Platform ${release}
+	out "iPlant Agave API ${release}
 Agave CLI (revision ${revision})
 "
 }
@@ -177,7 +177,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 }
 
 function disclaimer() {
-	out "Documentation on the Agave Platform, client libaries, and developer tools are
+	out "Documentation on the Agave API, client libaries, and developer tools is
 available online from the Agave Website, http://developer.agaveapi.co. For
 localized help of the various CLI commands, run any command with the -h
 or --help option.
@@ -189,20 +189,6 @@ function log() { (($verbose)) && out "$@"; }
 
 # Notify on function success
 function notify() { [[ $? == 0 ]] && success "$@" || err "$@"; }
-
-# prints warning informing client keys are missing
-function error_no_client() {
-    err 'No client keys found. You may provide your client keys in one of 3 ways:
-
-    1. Add your client key and client secret to your session cache using the auth-switch command.
-    2. Add them as arguments to this command using the -k/--apikey and -s/--apisecret options. 
-    3. Define them in your environment as AGAVE_CLIENT_KEY and AGAVE_CLIENT_SECRET.
- 
-If you have not yet generated a set of client keys, you can do so using the clients-create command.
-
-    clients-create --apiusername $AGAVE_USERNAME --apipassword $AGAVE_PASSWORD --storeclient
-'   
-}
 
 # Escape a string
 function escape() { echo $@ | sed 's/\//\\\//g'; }
@@ -222,7 +208,7 @@ function rollback() {
 }
 
 function getIpAddress() {
-    curl http://myip.dnsomatic.com
+    agave-curl http://myip.dnsomatic.com
 }
 
 function jsonval {
@@ -287,10 +273,6 @@ function to_json_error_message() {
 
 }
 
-function variable_with_name_exists_but_empty() {
-    [[ -z $$1 && ${$1+x}  ]] && echo 1
-}
-
 function trim() {
 	local var="$*"
 	var="${var#"${var%%[![:space:]]*}"}"   # remove leading whitespace characters
@@ -298,7 +280,7 @@ function trim() {
 	echo -n "$var"
 }
 
-# Adds the pagination params to each curl call by checking and formatting the url query
+# Adds the pagination params to each agave-curl call by checking and formatting the url query
 # values associated with the $limit, $offset, and $filter variables common to all scripts.
 function pagination {
 
@@ -438,6 +420,8 @@ function jsonquery {
 
 			elif [[ 'python' == "$AGAVE_JSON_PARSER" ]]; then
 
+				echo "common/jsonquery/python"
+
 				[[ -z "$3" ]] && stripquotes='-s'
 
 				echo "${1}" | python $DIR/python2/pydotjson.py -q ${2} $stripquotes
@@ -540,29 +524,24 @@ function prompt_options() {
     [[ ! "$desc" ]] && continue
 
 	#echo -n "$desc: "
-	
+
 	# In case this is a password field, hide the user input
     if [[ $val == "apikey" ]]; then
-        if [[ -n "$AGAVE_CLIENT_KEY" ]]; then 
-            savedapikey="$AGAVE_CLIENT_KEY"
-        else
-            jsonval savedapikey "${tokenstore}" "apikey"
-        fi
-        
-        if [[ -n "$savedapikey" ]]; then
-            apikey=$savedapikey
-        else
-        
-            echo -n "API key [$savedapikey]: "
-            eval "read $val"
-            if  [[ -z $apikey ]]; then
-                apikey=$savedapikey
-            fi
-        fi
+    	jsonval savedapikey "${tokenstore}" "apikey"
+      if [[ -n "$force" ]]; then
+        apikey=$savedapikey
+      else
+  	    echo -n "API key [$savedapikey]: "
+      	eval "read $val"
+      	if  [[ -z $apikey ]]; then
+      		apikey=$savedapikey
+      	fi
+      	#stty -echo; read apikey; stty echo
+      	#echo
+      fi
     elif [[ $val == "refresh_token" ]]; then
-      jsonval savedrefreshtoken "${tokenstore}" "refresh_token"
-      
-      if ((force)) || [[ -n "$savedrefreshtoken" ]]; then
+    	jsonval savedrefreshtoken "${tokenstore}" "refresh_token"
+      if [[ -n "$force" ]]; then
         refresh_token=$savedrefreshtoken
       else
         echo -n "Refresh token [$savedrefreshtoken]: "
@@ -574,13 +553,8 @@ function prompt_options() {
       	#echo
       fi
     elif [[ $val == "apisecret" ]]; then
-      if [[ -n "$AGAVE_CLIENT_SECRET" ]]; then 
-        savedapisecret="$AGAVE_CLIENT_SECRET"
-      else
-        jsonval savedapisecret "${tokenstore}" "apisecret"
-      fi
-      
-      if [[ -n "$savedapisecret" ]]; then
+    	jsonval savedapisecret "${tokenstore}" "apisecret"
+      if [[ -n "$force" ]]; then
         apisecret=$savedapisecret
       else
   		  echo -n "API secret [$savedapisecret]: "
@@ -590,81 +564,44 @@ function prompt_options() {
       	fi
       fi
     elif [[ $val == "username" ]]; then
-      if [[ -n "$AGAVE_USERNAME" ]]; then 
-        savedusername="$AGAVE_USERNAME"
-      else
-        jsonval savedusername "${tokenstore}" "username"
-      fi
-      
-      # username option is required, but not explicitly provided
-      # If it exists in the environment, use it and skip the prompt 
-      # environment
-	  if ((force)); then
+    	jsonval savedusername "${tokenstore}" "username"
+		  if [[ -n "$force" ]]; then
         username=$savedusername
       else
         echo -n "API username [$savedusername]: "
       	eval "read $val"
       	if  [[ -z $username ]]; then
-        	username=$savedusername
+        		username=$savedusername
       	fi
       fi
-    elif [[ $val == "apiusername" ]]; then
-      if [[ -n "$AGAVE_USERNAME" ]]; then 
-        savedusername="$AGAVE_USERNAME"
-      else
-        jsonval savedusername "${tokenstore}" "username"
-      fi
-      
-      # api username option is required, but not explicitly provided
-      # If it exists in the environment, use it and skip the prompt 
-      # environment
-      if [[ -n "$savedusername" ]]; then
-        apiusername=$savedusername
-      else
-        echo -n "API username [$savedusername]: "
-        eval "read $val"
-        if  [[ -z $username ]]; then
-            apiusername=$savedusername
-        fi
-      fi
     elif [[ $val == "password" ]]; then
-      if ((force)) || [[ -n "$AGAVE_PASSWORD" ]]; then  
-        password="$AGAVE_PASSWORD"
-      else   
-        echo -n "API password: "
-        stty -echo; read "password"; stty echo
-        echo -n "
+    	echo -n "API password: "
+    	stty -echo; read "password"; stty echo
+    	echo -n "
 ";
-      fi
     elif [[ $val == "apipassword" ]]; then
-      if ((force)) || [[ -n "$AGAVE_PASSWORD" ]]; then 
-          apipassword="$AGAVE_PASSWORD"
-      else
-        echo -n "API password: "
-        stty -echo; read "apipassword"; stty echo
-        echo -n "
+    	echo -n "API password: "
+    	stty -echo; read "apipassword"; stty echo
+    	echo -n "
 ";
-      fi
 	# Otherwise just read the input
     else
-      echo -n "$desc: "
-	  eval "read $val"
+    	echo -n "$desc: "
+		eval "read $val"
     fi
   done
 }
 
 function get_auth_header() {
+  export bearer="Bearer $access_token"
+  export password
 	if [[ "$development" -ne 1 ]]; then
-        if [[ -n "$AGAVE_ACCESS_TOKEN" ]]; then
-            echo "Authorization: Bearer $AGAVE_ACCESS_TOKEN"
-        else
-            echo "Authorization: Bearer $access_token"
-        fi
-    else
+		export authheader="Authorization:"'$bearer'
+	else
 		if [[ -f "$DIR/auth-filter.sh" ]]; then
-		  echo $(source $DIR/auth-filter.sh);
+		  source $DIR/auth-filter.sh
 		else
-		  echo " -u \"${username}:${password}\" "
+		  export authheader=" -u '${username}:${password}' "
 		fi
 	fi
 }
@@ -746,6 +683,7 @@ function json_prettyify {
 	if [[ 'python' == "$AGAVE_JSON_PARSER" ]]; then
 
 		echo "$@" | python $DIR/python2/pydotjson.py
+		#echo -n "$@" | python -mjson.tool
 
 	elif [[ 'jq' == "$AGAVE_JSON_PARSER" ]]; then
 
@@ -758,7 +696,7 @@ function json_prettyify {
 	# If all else fails, we can use the jsonparser api
 	#elif [[ -z "$AGAVE_JSON_PARSER" -o 'json-mirror' == "$AGAVE_JSON_PARSER" ]]; then
 	else
-		jsonparserresponse=$(echo "${1}" | curl -sk --globoff -X POST -H "Content-Type: application/json" --data-binary @- "https://agaveapi.co/json-mirror?pretty=true")
+		jsonparserresponse=$(echo "${1}" | agave-curl -sk --globoff -X POST -H "Content-Type: application/json" --data-binary @- "https://agaveapi.co/json-mirror?pretty=true")
 
 		if [ $? ]; then
 			echo -e "${jsonparserresponse}"
@@ -768,14 +706,10 @@ function json_prettyify {
 	fi
 }
 
-#
-# Refresh the current user token cached in $AGAVE_CACHE_DIR/current. This function can be
-# enabled at any time by setting the $AGAVE_ENABLE_AUTO_REFRESH environment variable.
-# Refresh will be skipped silently if the client key, secret, or refresh token are missing.
-#
-function auto_auth_refresh
-{
-	if [[ -z "$AGAVE_ACCESS_TOKEN" ]] && [[ -n "$AGAVE_ENABLE_AUTO_REFRESH" ]];
+function auto_auth_refresh {
+    
+	AGAVE_DISABLE_AUTO_REFRESH=1
+	if [[ -z "$AGAVE_DISABLE_AUTO_REFRESH" ]];
 	then
 		# ignore the refresh if the api keys or refresh token are not present in the cache.
 		if [[ -n "$baseurl" ]] && [[ -n "$apikey" ]] && [[ -n "$apisecret" ]] && [[ -n "$refresh_token" ]];
@@ -785,9 +719,10 @@ function auto_auth_refresh
 			__hosturl=${__hosturl}/token
 			__post_options="grant_type=refresh_token&refresh_token=${refresh_token}&scope=PRODUCTION"
 
-			response=`curl -sku "$apikey:$apisecret" -X POST -d "${__post_options}" -H "Content-Type:application/x-www-form-urlencoded" "$__hosturl"`
+      export apisecret
+			response=`agave-curl -sku "$apikey:\$apisecret" -X POST -d "${__post_options}" -H "Content-Type:application/x-www-form-urlencoded" "$__hosturl"`
 
-			# check response code. if curl exited with a non 200 code, the operation failed
+			# check response code. if agave-curl exited with a non 200 code, the operation failed
 			if [[ ! $? ]] && (($verbose)); then
 				err "Unable to refresh token. If you do not update your token manually using the auth-tokens-refresh command, token refresh will be attempted again prior to your next request."
 
@@ -860,17 +795,16 @@ function richify {
 	oldIFS="$IFS"
 	IFS=$'\n'
 
-
+	# Cut down very long responses so they fit in a table
+	max_length="45"
 
 	# the rest of the parameters in $@ are fields to parse
 	for params in "${richargs[@]}"; do
 
 		# save parameter names for table header
-		#return_string="$return_string $params\t| "
 		return_string="$return_string $params | "
 
 		# dynamically create table divider
-		#return_string_divider="$return_string_divider ${params//[A-Za-z0-9\[\]\.]/-}\t| "
 		return_string_divider="$return_string_divider ${params//[A-Za-z0-9\[\]\.]/-} | "
 
 		# grab array of values from json response
@@ -888,12 +822,17 @@ function richify {
 
 			# Parse times into something friendly
 			if [[ "$results" != "null" ]]; then
-				if [[ "$params" == "lastModified" || "$params" == "lastUpdated" || "$params" == "created" || "$params" =~ /.*Time$/ || "$params" =~ /.*At$/ || "$params" =~ /.*Date$/ ]]; then
+				if [[ "$params" == "lastModified" || "$params" == "lastUpdated" || "$params" == "lastSuccess" || "$params" == "created" || "$params" == "expires" || "$params" =~ /.*Time$/ || "$params" =~ /.*At$/ || "$params" =~ /.*Date$/ ]]; then
 					# break date formatting out to its own function so we can
 					# consistently reuse it across the cli
 					results[$i]=$(format_iso8601_date_and_time "${results[$i]}" 1)
 
 				fi
+			fi
+
+			if [[ "${#results[$i]}" -gt "$max_length" ]]; then
+				results[$i]=${results[$i]:0:${max_length}}
+				results[$i]="${results[$i]}..."
 			fi
 
 			array_of_values[$n]="${results[$i]}"
@@ -923,6 +862,11 @@ function richify {
 
 function columnize {
 
+	python $DIR/python2/richtext.py $@
+
+}
+
+function columnize_old {
 	#
 	# Use awk to put rich text with pipe '|' separators into column format
 	# (This replaces the bash 'column' command because 'column' is not 
@@ -944,6 +888,7 @@ function columnize {
 	END {
 		for (j=2; j<=numcol+1; j++)
 			printf "%d%s", maxchar[j], " "
+			#printf "|%*-s", maxchar[j], $j
 	}' ) )
 
 	# Printf each column with width based on maximum length

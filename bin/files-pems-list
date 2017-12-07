@@ -72,13 +72,13 @@ main() {
 		searchterms="${searchterms}&permission.eq=$permission"
 	fi
 
-	cmd="curl -sk -H \"${authheader}\" '${hosturl}${args}?pretty=true${searchterms}$(pagination)'"
+	cmd="agave-curl -sk -H \"${authheader}\" '${hosturl}${args}?pretty=true${searchterms}$(pagination)'"
 
 	if ((veryverbose)); then
 		[ "$piped" -eq 0 ] && log "Calling $cmd"
 	fi
 
-	response=`curl -sk -H "${authheader}" "${hosturl}${args}?pretty=true${searchterms}$(pagination)"`
+	response=`agave-curl -sk -H "${authheader}" "${hosturl}${args}?pretty=true${searchterms}$(pagination)"`
 
 	if [[ $(jsonquery "$response" "status") = 'success' ]]; then
 		format_api_json "$response"

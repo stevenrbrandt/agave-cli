@@ -107,26 +107,26 @@ main() {
 
 				post_options=${post_options%&}
 
-				cmd="curl $quietarg -k -H \"${authheader}\" -X POST -F \"fileToUpload=@$filetoupload\" -F \"${post_options}\" '$hosturl$args?pretty=true'"
+				cmd="agave-curl $quietarg -k -H \"${authheader}\" -X POST -F \"fileToUpload=@$filetoupload\" -F \"${post_options}\" '$hosturl$args?pretty=true'"
 
 				if ((veryverbose)); then
 					[ "$piped" -eq 0 ] && log "Calling $cmd"
 				fi
 				#response='{"status":"success","response":{},"message":null}'
-				response=`curl $quietarg -k -H "${authheader}" -X POST -F "fileToUpload=@$filetoupload" -F "${post_options}" "$hosturl$args?pretty=true"`
+				response=`agave-curl $quietarg -k -H "${authheader}" -X POST -F "fileToUpload=@$filetoupload" -F "${post_options}" "$hosturl$args?pretty=true"`
 
 			else
 
-				cmd="curl $quietarg -k -H \"${authheader}\" -X POST -F \"fileToUpload=@$filetoupload\" '$hosturl$args?pretty=true'"
+				cmd="agave-curl $quietarg -k -H \"${authheader}\" -X POST -F \"fileToUpload=@$filetoupload\" '$hosturl$args?pretty=true'"
 
 				if ((veryverbose)); then
 					[ "$piped" -eq 0 ] && log "Calling $cmd"
 				fi
 				#response='{"status":"success","response":{},"message":null}'
-				response=`curl $quietarg -k -H "${authheader}" -X POST -F "fileToUpload=@$filetoupload" "$hosturl$args?pretty=true"`
+				response=`agave-curl $quietarg -k -H "${authheader}" -X POST -F "fileToUpload=@$filetoupload" "$hosturl$args?pretty=true"`
 
 			fi
-		# if the file is coming from stdin, verify we have a filename and feed it to curl
+		# if the file is coming from stdin, verify we have a filename and feed it to agave-curl
 		elif [[ "$filetoupload" == "-" ]]; then
 
 			if [[ -z "$filename" ]]; then
@@ -140,23 +140,23 @@ main() {
 
 				  post_options=${post_options%&}
 
-				  cmd="curl $quietarg -k -H \"${authheader}\" -X POST -F \"fileToUpload=@-\" -F \"${post_options}\" '$hosturl$args?pretty=true'"
+				  cmd="agave-curl $quietarg -k -H \"${authheader}\" -X POST -F \"fileToUpload=@-\" -F \"${post_options}\" '$hosturl$args?pretty=true'"
 
 				  if ((veryverbose)); then
 					[ "$piped" -eq 0 ] && log "Calling $cmd"
 				  fi
 				  #response='{"status":"success","response":{},"message":null}'
-				  response=`curl $quietarg -k -H "${authheader}" -X POST -F "fileToUpload=@-" -F "${post_options}" "$hosturl$args?pretty=true"`
+				  response=`agave-curl $quietarg -k -H "${authheader}" -X POST -F "fileToUpload=@-" -F "${post_options}" "$hosturl$args?pretty=true"`
 
 				else
 
-				  cmd="curl $quietarg -k -H \"${authheader}\" -X POST -F \"fileToUpload=@-\" '$hosturl$args?pretty=true'"
+				  cmd="agave-curl $quietarg -k -H \"${authheader}\" -X POST -F \"fileToUpload=@-\" '$hosturl$args?pretty=true'"
 
 				  if ((veryverbose)); then
 					[ "$piped" -eq 0 ] && log "Calling $cmd"
 				  fi
 				  #response='{"status":"success","response":{},"message":null}'
-				  response=`curl $quietarg -k -H "${authheader}" -X POST -F "fileToUpload=@-" "$hosturl$args?pretty=true"`
+				  response=`agave-curl $quietarg -k -H "${authheader}" -X POST -F "fileToUpload=@-" "$hosturl$args?pretty=true"`
 
 				fi
 
@@ -233,8 +233,8 @@ main() {
 			else
 				hosturl="${baseurl}listings/${newdirpath}"
 			fi
-			#echo "Calling curl -sk -H ${authheader} \"${hosturl%/}?pretty=true\""
-			response=`curl -sk -H "${authheader}"  "${hosturl%/}?pretty=true"`
+			#echo "Calling agave-curl -sk -H ${authheader} \"${hosturl%/}?pretty=true\""
+			response=`agave-curl -sk -H "${authheader}"  "${hosturl%/}?pretty=true"`
 		fi
 
 		if [[ $(jsonquery "$response" "status") = 'success' ]]; then

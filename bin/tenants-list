@@ -52,13 +52,13 @@ main() {
 	#echo -n
 	#set -x
 
-	cmd="curl -sk ${hosturl%/}/${args}?pretty=true$(pagination)"
+	cmd="agave-curl -sk ${hosturl%/}/${args}?pretty=true$(pagination)"
 
 	if ((veryverbose)); then
 		[ "$piped" -eq 0 ] && log "Calling $cmd"
 	fi
 
-	response=`curl -sk "${hosturl%/}/${args}?pretty=true$(pagination)"`
+	response=`agave-curl -sk "${hosturl%/}/${args}?pretty=true$(pagination)"`
 
 	if [[ $(jsonquery "$response" "status") = 'success' ]]; then
 		result=$(format_api_json "$response")

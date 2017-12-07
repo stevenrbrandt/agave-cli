@@ -72,37 +72,37 @@ main() {
 
     #uuids=$(echo "${uuids}" | sed -e 's/ /","/g')
 
-    cmd="curl -sk -H \"${authheader}\" -X POST -H 'Content-Type: application/json' --data-binary  '{\"name\":\"${name}\",\"associationIds\": [\"${uuids}\"]}' '${hosturl}$args?pretty=true'"
+    cmd="agave-curl -sk -H \"${authheader}\" -X POST -H 'Content-Type: application/json' --data-binary  '{\"name\":\"${name}\",\"associationIds\": [\"${uuids}\"]}' '${hosturl}$args?pretty=true'"
 
     if ((veryverbose)); then
         [ "$piped" -eq 0 ] && log "Calling $cmd"
     fi
 
-    response=`curl -sk -H "${authheader}" -X POST -H 'Content-Type: application/json' --data-binary "{\"name\":\"${name}\", \"associationIds\":[\"${uuids}\"]}" "${hosturl}$args?pretty=true"`
+    response=`agave-curl -sk -H "${authheader}" -X POST -H 'Content-Type: application/json' --data-binary "{\"name\":\"${name}\", \"associationIds\":[\"${uuids}\"]}" "${hosturl}$args?pretty=true"`
 
   # reading from stdin
   elif [[ "$filetoupload" == "-"  ]]; then
 
-    cmd="curl -sk -H \"${authheader}\" -H \"Content-Type: application/json\" -X POST --data-binary @- '${hosturl}$args?pretty=true'"
+    cmd="agave-curl -sk -H \"${authheader}\" -H \"Content-Type: application/json\" -X POST --data-binary @- '${hosturl}$args?pretty=true'"
 
     if ((veryverbose)); then
       [ "$piped" -eq 0 ] && log "Calling $cmd"
     fi
 
     # make sure we specify content type as application/json
-    response=`curl -sk -H "${authheader}" -H "Content-Type: application/json" -X POST --data-binary @- "${hosturl}$args?pretty=true"`
+    response=`agave-curl -sk -H "${authheader}" -H "Content-Type: application/json" -X POST --data-binary @- "${hosturl}$args?pretty=true"`
 
   # standard file upload
   elif [[ -f "$filetoupload" ]]; then
 
 
-    cmd="curl -sk -H \"${authheader}\" -X POST -F \"fileToUpload=@$filetoupload\" '${hosturl}$args?pretty=true'"
+    cmd="agave-curl -sk -H \"${authheader}\" -X POST -F \"fileToUpload=@$filetoupload\" '${hosturl}$args?pretty=true'"
 
     if ((veryverbose)); then
         [ "$piped" -eq 0 ] && log "Calling $cmd"
     fi
 
-    response=`curl -sk -H "${authheader}" -X POST -F "fileToUpload=@$filetoupload" "${hosturl}$args?pretty=true"`
+    response=`agave-curl -sk -H "${authheader}" -X POST -F "fileToUpload=@$filetoupload" "${hosturl}$args?pretty=true"`
 
   fi
 

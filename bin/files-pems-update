@@ -81,13 +81,13 @@ main() {
       recursive="false";
     fi
 
-		cmd="curl -sk -H \"${authheader}\" -X POST -d \"username=${pemusername}&permission=${permission}&recursive=${recursive}\" '${hosturl}${args}?pretty=true'"
+		cmd="agave-curl -sk -H \"${authheader}\" -X POST -d \"username=${pemusername}&permission=${permission}&recursive=${recursive}\" '${hosturl}${args}?pretty=true'"
 
 		if ((veryverbose)); then
 			[ "$piped" -eq 0 ] && log "Calling $cmd"
 		fi
 
-		response=`curl -sk -H "${authheader}" -X POST -d "username=${pemusername}&permission=${permission}&recursive=${recursive}" "${hosturl}${args}?pretty=true"`
+		response=`agave-curl -sk -H "${authheader}" -X POST -d "username=${pemusername}&permission=${permission}&recursive=${recursive}" "${hosturl}${args}?pretty=true"`
 
 		if [[ $(jsonquery "$response" "status") = 'success' ]]; then
 			result=$(format_api_json "$response")

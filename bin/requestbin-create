@@ -50,13 +50,13 @@ main() {
 	#echo -n
 	#set -x
 
-    cmd="curl -sk -X POST '${hosturl}api/v1/bins'"
+    cmd="agave-curl -sk -X POST '${hosturl}api/v1/bins'"
 
 	if ((veryverbose)); then
 		[ "$piped" -eq 0 ] && log "Calling $cmd"
 	fi
 
-	response=`curl -sk -X POST ${hosturl}api/v1/bins`
+	response=`agave-curl -sk -X POST ${hosturl}api/v1/bins`
 
 	if [[ -n $(jsonquery "$response" "name") ]]; then
 		result=$(format_api_json "$response")

@@ -72,7 +72,7 @@ hosturl=${hosturl%/}
 hosturl="$hosturl/"
 
 # Delegate logic from the `main` function
-authheader=$(get_auth_header)
+get_auth_header
 main
 
 # This has to be run last not to rollback changes we've made.

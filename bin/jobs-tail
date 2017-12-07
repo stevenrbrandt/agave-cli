@@ -64,13 +64,13 @@ main()
 		if [[ $rich -eq 1 ]]; then
 			for jobid in "${args[@]}"
 			do
-				cmd="curl -sk -H \"${authheader}\" '${hosturl}/${jobid}/history?limit=1&filter=progress&order=desc&status.in=ARCHIVING,STAGING_INPUTS'"
+				cmd="agave-curl -sk -H \"${authheader}\" '${hosturl}/${jobid}/history?limit=1&filter=progress&order=desc&status.in=ARCHIVING,STAGING_INPUTS'"
 
 				if ((veryverbose)); then
 					[ "$piped" -eq 0 ] && log "Calling $cmd"
 				fi
 
-				singleresponse=`curl -sk -H "${authheader}" "${hosturl}/${jobid}/history?limit=1&filter=progress&order=desc&status.in=ARCHIVING,STAGING_INPUTS"`
+				singleresponse=`agave-curl -sk -H "${authheader}" "${hosturl}/${jobid}/history?limit=1&filter=progress&order=desc&status.in=ARCHIVING,STAGING_INPUTS"`
 			done
 
 			if [[ $(jsonquery "$response" "status") = 'success' ]]; then
@@ -84,13 +84,13 @@ main()
 
 			for jobid in "${args[@]}"
 			do
-				cmd="curl -sk -H \"${authheader}\" '${hosturl}/${jobid}/history?pretty=true&limit=1&filter=progress&order=desc&status.in=ARCHIVING,STAGING_INPUTS'"
+				cmd="agave-curl -sk -H \"${authheader}\" '${hosturl}/${jobid}/history?pretty=true&limit=1&filter=progress&order=desc&status.in=ARCHIVING,STAGING_INPUTS'"
 
 				if ((veryverbose)); then
 					[ "$piped" -eq 0 ] && log "Calling $cmd"
 				fi
 
-				response=`curl -sk -H "${authheader}" "${hosturl}/${jobid}/history?pretty=true&limit=1&filter=progress&order=desc&status.in=ARCHIVING,STAGING_INPUTS"`
+				response=`agave-curl -sk -H "${authheader}" "${hosturl}/${jobid}/history?pretty=true&limit=1&filter=progress&order=desc&status.in=ARCHIVING,STAGING_INPUTS"`
 
 				if [[ $(jsonquery "$response" "status") = 'success' ]]; then
 					result=$(format_api_json "$response")

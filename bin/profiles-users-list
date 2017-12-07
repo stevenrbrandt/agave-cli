@@ -76,13 +76,13 @@ main() {
 		profileurl="${hosturl}$username/users?pretty=true"
 	fi
 
-	cmd="curl -sk -H \"${authheader}\" '$profileurl$(pagination)'"
+	cmd="agave-curl -sk -H \"${authheader}\" '$profileurl$(pagination)'"
 
 	if ((veryverbose)); then
 		[ "$piped" -eq 0 ] && log "Calling $cmd"
 	fi
 
-	response=`curl -sk -H "${authheader}" $profileurl$(pagination)`
+	response=`agave-curl -sk -H "${authheader}" $profileurl$(pagination)`
 
 	if [[ $(jsonquery "$response" "status") = 'success' ]]; then
 		result=$(format_api_json "$response")

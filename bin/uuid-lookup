@@ -63,13 +63,13 @@ main() {
 
 		hosturl="$baseuuidurl/$args"
 
-		cmd="curl -sk -H \"${authheader}\" '${hosturl}?expand=$expand&pretty=true$(pagination)'"
+		cmd="agave-curl -sk -H \"${authheader}\" '${hosturl}?expand=$expand&pretty=true$(pagination)'"
 
 		if ((veryverbose)); then
 			[ "$piped" -eq 0 ] && log "Calling $cmd"
 		fi
 
-		response=`curl -sk -H "${authheader}" "${hosturl}?expand=$expand&pretty=true$(pagination)"`
+		response=`agave-curl -sk -H "${authheader}" "${hosturl}?expand=$expand&pretty=true$(pagination)"`
 
 		# resolve the uuid. if successful, parse it
 		if [[ $(jsonquery "$response" "status") = 'success' ]]; then
@@ -85,13 +85,13 @@ main() {
 		# convert them to a comma separated list
 		uuids=$(echo "${args[@]}" | sed -e 's/ /,/g')
 
-		cmd="curl -sk -H \"${authheader}\" '${hosturl}?uuids=$uuids&expand=$expand&pretty=true$(pagination)'"
+		cmd="agave-curl -sk -H \"${authheader}\" '${hosturl}?uuids=$uuids&expand=$expand&pretty=true$(pagination)'"
 
 		if ((veryverbose)); then
 			[ "$piped" -eq 0 ] && log "Calling $cmd"
 		fi
 
-		response=`curl -sk -H "${authheader}" "${hosturl}?uuids=$uuids&expand=$expand&pretty=true$(pagination)"`
+		response=`agave-curl -sk -H "${authheader}" "${hosturl}?uuids=$uuids&expand=$expand&pretty=true$(pagination)"`
 
 		# resolve the uuid. if successful, parse it
 		if [[ $(jsonquery "$response" "status") = 'success' ]]; then

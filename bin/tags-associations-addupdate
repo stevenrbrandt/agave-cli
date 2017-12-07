@@ -68,13 +68,13 @@ main() {
 
     uuids=$(echo "${args}" | sed -e 's/ /","/g')
 
-    cmd="curl -sk -H \"${authheader}\" -X POST -H 'Content-Type: application/json' --data-binary  '[\"${uuids}\"]' '${hosturl}$tag_id/associations?pretty=true'"
+    cmd="agave-curl -sk -H \"${authheader}\" -X POST -H 'Content-Type: application/json' --data-binary  '[\"${uuids}\"]' '${hosturl}$tag_id/associations?pretty=true'"
 
     if ((veryverbose)); then
         [ "$piped" -eq 0 ] && log "Calling $cmd"
     fi
 
-    response=`curl -sk -H "${authheader}" -X POST -H 'Content-Type: application/json' --data-binary "[\"${uuids}\"]" "${hosturl}$tag_id/associations?pretty=true"`
+    response=`agave-curl -sk -H "${authheader}" -X POST -H 'Content-Type: application/json' --data-binary "[\"${uuids}\"]" "${hosturl}$tag_id/associations?pretty=true"`
 
   # reading from stdin
   elif [[ "$filetoupload" == "-"  ]]; then
@@ -82,14 +82,14 @@ main() {
       # tag id is first positional argument
       tag_id="${args[0]}"
 
-      cmd="curl -sk -H \"${authheader}\" -H \"Content-Type: application/json\" -X POST --data-binary @- '${hosturl}$tag_id/associations?pretty=true'"
+      cmd="agave-curl -sk -H \"${authheader}\" -H \"Content-Type: application/json\" -X POST --data-binary @- '${hosturl}$tag_id/associations?pretty=true'"
 
     if ((veryverbose)); then
       [ "$piped" -eq 0 ] && log "Calling $cmd"
     fi
 
     # make sure we specify content type as application/json
-    response=`curl -sk -H "${authheader}" -H "Content-Type: application/json" -X POST --data-binary @- "${hosturl}$tag_id/associations?pretty=true"`
+    response=`agave-curl -sk -H "${authheader}" -H "Content-Type: application/json" -X POST --data-binary @- "${hosturl}$tag_id/associations?pretty=true"`
 
   # standard file upload
   elif [[ -f "$filetoupload" ]]; then
@@ -97,13 +97,13 @@ main() {
       # tag id is first positional argument
       tag_id="${args[0]}"
 
-      cmd="curl -sk -H \"${authheader}\" -X POST -F \"fileToUpload=@$filetoupload\" '${hosturl}$tag_id/associations?pretty=true'"
+      cmd="agave-curl -sk -H \"${authheader}\" -X POST -F \"fileToUpload=@$filetoupload\" '${hosturl}$tag_id/associations?pretty=true'"
 
     if ((veryverbose)); then
         [ "$piped" -eq 0 ] && log "Calling $cmd"
     fi
 
-    response=`curl -sk -H "${authheader}" -X POST -F "fileToUpload=@$filetoupload" "${hosturl}$tag_id/associations?pretty=true"`
+    response=`agave-curl -sk -H "${authheader}" -X POST -F "fileToUpload=@$filetoupload" "${hosturl}$tag_id/associations?pretty=true"`
 
   fi
 

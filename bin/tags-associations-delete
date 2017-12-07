@@ -73,13 +73,13 @@ main() {
 
             uuid=$1
 
-            cmd="curl -sk -H \"${authheader}\" -X DELETE '${hosturl}$tag_id/associations/$uuid?pretty=true'"
+            cmd="agave-curl -sk -H \"${authheader}\" -X DELETE '${hosturl}$tag_id/associations/$uuid?pretty=true'"
 
             if ((veryverbose)); then
                 [ "$piped" -eq 0 ] && log "Calling $cmd"
             fi
 
-            response=`curl -sk -H "${authheader}" -X DELETE "${hosturl}$tag_id/associations/$uuid?pretty=true"`
+            response=`agave-curl -sk -H "${authheader}" -X DELETE "${hosturl}$tag_id/associations/$uuid?pretty=true"`
 
             if [[ $(jsonquery "$response" "status") = 'success' ]]; then
                 result=$(format_api_json "$response")

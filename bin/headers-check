@@ -27,7 +27,7 @@ Prints the headers that would be passed to a protected API by the Agave auth ser
 when presented the current auth token.
 
  Options:
-  -z, --access_token    Access token. This will override the value of AGAVE_ACCESS_TOKEN
+  -z, --access_token    Access token
       --filter          Comma separated list of fields to return in the response
   -H, --hosturl         URL of the service
   -d, --development     Run in dev mode using default dev server
@@ -57,14 +57,14 @@ main() {
 
     else
 
-        cmd="curl -sk -H \"${authheader}\" '${hosturl%%/}"
+        cmd="agave-curl -sk -H \"${authheader}\" '${hosturl%%/}"
 
         if ((veryverbose)); then
             [ "$piped" -eq 0 ] && log "Calling $cmd"
         fi
 
         # make sure we specify content type as application/json
-        response=`curl -sk -H "${authheader}" "${hosturl%%/}"`
+        response=`agave-curl -sk -H "${authheader}" "${hosturl%%/}"`
 
     fi
 

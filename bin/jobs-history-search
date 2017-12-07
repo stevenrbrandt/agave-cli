@@ -91,7 +91,7 @@ main() {
 		# pop it off the argument array
 		args=("${args[@]:1}")
 
-		# build the curl query arguments from the argument array, properly urlencoding them
+		# build the agave-curl query arguments from the argument array, properly urlencoding them
 		querystring=""
 
 		if [ -n "$args" ]; then
@@ -101,13 +101,13 @@ main() {
 			done
 		fi
 
-		cmd="curl -G -sk -H \"${authheader}\" '${hosturl}${jobid}/history?pretty=true$(pagination)' ${querystring}"
+		cmd="agave-curl -G -sk -H \"${authheader}\" '${hosturl}${jobid}/history?pretty=true$(pagination)' ${querystring}"
 
 		if ((veryverbose)); then
 			[ "$piped" -eq 0 ] && log "Calling $cmd"
 		fi
 
-		response=`curl -G -sk -H "${authheader}" ${hosturl}${jobid}/history?pretty=true$(pagination) $querystring`
+		response=`agave-curl -G -sk -H "${authheader}" ${hosturl}${jobid}/history?pretty=true$(pagination) $querystring`
 
 		if [[ $(jsonquery "$response" "status") = 'success' ]]; then
 			result=$(format_api_json "$response")

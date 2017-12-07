@@ -56,13 +56,13 @@ main() {
 		err "Please specify a valid app id to enable"
 	else
 
-		cmd="curl -sk -H \"${authheader}\" -X PUT -d \"action=disable\" '$hosturl$args?pretty=true'"
+		cmd="agave-curl -sk -H \"${authheader}\" -X PUT -d \"action=disable\" '$hosturl$args?pretty=true'"
 
 		if ((veryverbose)); then
 			[ "$piped" -eq 0 ] && log "Calling $cmd"
 		fi
 
-		response=`curl -sk -H "${authheader}" -X PUT -d "action=disable" "$hosturl$args?pretty=true"`
+		response=`agave-curl -sk -H "${authheader}" -X PUT -d "action=disable" "$hosturl$args?pretty=true"`
 
 		if [[ $(jsonquery "$response" "status") = 'success' ]]; then
 			result=$(format_api_json "$response")

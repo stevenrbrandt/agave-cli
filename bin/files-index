@@ -68,13 +68,13 @@ main() {
 		hosturl="${hosturl}index/"
 	fi
 
-	cmd="curl -sk -H \"${authheader}\" '${hosturl}${args}?pretty=true$(pagination)'"
+	cmd="agave-curl -sk -H \"${authheader}\" '${hosturl}${args}?pretty=true$(pagination)'"
 
 	if ((veryverbose)); then
 		[ "$piped" -eq 0 ] && log "Calling $cmd"
 	fi
 
-	response=`curl -sk -H "${authheader}" "${hosturl}${args}?pretty=true$(pagination)"`
+	response=`agave-curl -sk -H "${authheader}" "${hosturl}${args}?pretty=true$(pagination)"`
 
 	if [[ $(jsonquery "$response" "status") = 'success' ]]; then
 		result=$(format_api_json "$response")

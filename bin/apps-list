@@ -94,13 +94,13 @@ main() {
 		fi
 	fi
 
-	cmd="curl -sk -H \"${authheader}\" '$hosturl?${querystring}'"
+	cmd="agave-curl -sk -H \"${authheader}\" '$hosturl?${querystring}'"
 
 	if ((veryverbose)); then
 		[ "$piped" -eq 0 ] && log "Calling $cmd"
 	fi
 
-	response=`curl -sk -H "${authheader}" "$hosturl?${querystring}"`
+	response=`agave-curl -sk -H "${authheader}" "$hosturl?${querystring}"`
 
 	if [[ $(jsonquery "$response" "status") = 'success' ]]; then
 		result=$(format_api_json "${response}")

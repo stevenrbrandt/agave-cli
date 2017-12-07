@@ -75,25 +75,25 @@ main() {
     # reading from stdin
     if [[ "$filetoupload" == "-"  ]]; then
 
-      cmd="curl -sk -H \"${authheader}\" -H \"Content-Type: application/json\" -X POST --data-binary @- '$hosturl?pretty=true'"
+      cmd="agave-curl -sk -H \"${authheader}\" -H \"Content-Type: application/json\" -X POST --data-binary @- '$hosturl?pretty=true'"
 
       if ((veryverbose)); then
         [ "$piped" -eq 0 ] && log "Calling $cmd"
       fi
 
       # make sure we specify content type as application/json
-      response=`curl -sk -H "${authheader}" -H "Content-Type: application/json" -X POST --data-binary @- "$hosturl?pretty=true"`
+      response=`agave-curl -sk -H "${authheader}" -H "Content-Type: application/json" -X POST --data-binary @- "$hosturl?pretty=true"`
 
     # standard file upload
     else
 
-      cmd="curl -sk -H \"${authheader}\" -X POST -d \"fileToUpload=@$filetoupload\" '$hosturl?pretty=true'"
+      cmd="agave-curl -sk -H \"${authheader}\" -X POST -d \"fileToUpload=@$filetoupload\" '$hosturl?pretty=true'"
 
       if ((veryverbose)); then
         [ "$piped" -eq 0 ] && log "Calling $cmd"
       fi
 
-      response=`curl -sk -H "${authheader}" -X POST -F "fileToUpload=@$filetoupload" "$hosturl?pretty=true"`
+      response=`agave-curl -sk -H "${authheader}" -X POST -F "fileToUpload=@$filetoupload" "$hosturl?pretty=true"`
 
     fi
 

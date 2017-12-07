@@ -52,13 +52,13 @@ main() {
     if [ -z "$args" ]; then
         err "Please specify a valid system id for which to retrieve the credentials"
     else
-        cmd="curl -sk '${hosturl}api/v1/bins/${args}/requests'"
+        cmd="agave-curl -sk '${hosturl}api/v1/bins/${args}/requests'"
 
         if ((veryverbose)); then
             [ "$piped" -eq 0 ] && log "Calling $cmd"
         fi
 
-        response=`curl -sk ${hosturl}api/v1/bins/${args}/requests`
+        response=`agave-curl -sk ${hosturl}api/v1/bins/${args}/requests`
 
         if [[ -n $(jsonquery "$response" "[].id") ]]; then
             result=$(format_api_json "$response")

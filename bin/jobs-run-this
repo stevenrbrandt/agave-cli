@@ -166,7 +166,7 @@ main() {
     fi
 
     # Now fetch the file
-    dockerfile_response=$(curl --write-out %{http_code} -sk -o "${workdir}/Dockerfile.download" "$dockerfile")
+    dockerfile_response=$(agave-curl --write-out %{http_code} -sk -o "${workdir}/Dockerfile.download" "$dockerfile")
 
     if [ "$dockerfile_response" -ne 200 ]; then
       err "Download failed. Job submission aborted."
@@ -190,7 +190,7 @@ main() {
     if [ -n "$dockerimage" ]; then
       # verify the docker image exists
       out "Verifying Docker image $dockerimage exists..."
-      imagecheck_response=$(curl -sk "https://index.docker.io/v1/search?q=${dockerimage}")
+      imagecheck_response=$(agave-curl -sk "https://index.docker.io/v1/search?q=${dockerimage}")
 
       if [ $? ]; then
         image_results=$(jsonquery "$imagecheck_response" "num_results");
@@ -289,10 +289,10 @@ main() {
   # Create a job description and submit the job
   out "Submitting job..."
   if ((veryverbose)); then
-    log "curl -sk -H \"${authheader}\" -H \"Content-type: application/json\" -X POST --data \"{ \"appId\":\"cloud-runner-0.1.0u1\", \"name\": \"$name\",\"inputs\": { \"appBundle\":\"$appbundleparam\" }, \"parameters\": { \"unpackInputs\": true$dockerimageparam, \"command\":\"$command\", \"commandArgs\":\"${args[@]}\" }${notifications}${archiveparam}}\" $hosturl?pretty=true"
+    log "agave-curl -sk -H \"${authheader}\" -H \"Content-type: application/json\" -X POST --data \"{ \"appId\":\"cloud-runner-0.1.0u1\", \"name\": \"$name\",\"inputs\": { \"appBundle\":\"$appbundleparam\" }, \"parameters\": { \"unpackInputs\": true$dockerimageparam, \"command\":\"$command\", \"commandArgs\":\"${args[@]}\" }${notifications}${archiveparam}}\" $hosturl?pretty=true"
   fi
 
-  response=`curl -sk -H "${authheader}" -H "Content-type: application/json" -X POST --data "{ \"appId\":\"cloud-runner-0.1.0u1\", \"name\": \"$name\",\"inputs\": { \"appBundle\":\"$appbundleparam\" }, \"parameters\": { \"unpackInputs\": true$dockerimageparam, \"command\":\"$command\", \"commandArgs\":\"${args[@]}\" }${notifications}${archiveparam}}" "$hosturl?pretty=true"`
+  response=`agave-curl -sk -H "${authheader}" -H "Content-type: application/json" -X POST --data "{ \"appId\":\"cloud-runner-0.1.0u1\", \"name\": \"$name\",\"inputs\": { \"appBundle\":\"$appbundleparam\" }, \"parameters\": { \"unpackInputs\": true$dockerimageparam, \"command\":\"$command\", \"commandArgs\":\"${args[@]}\" }${notifications}${archiveparam}}" "$hosturl?pretty=true"`
 
   if [[ $(jsonquery "$response" "status") = 'success' ]]; then
 

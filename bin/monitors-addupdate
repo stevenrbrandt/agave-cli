@@ -95,25 +95,25 @@ main() {
         active="true"
       fi
 
-      cmd="curl -sk -H \"${authheader}\" -X POST -d \"frequency=${frequency}&active=${active}&updateSystemStatus=${updateSystemStatus}&target=${systemId}\" '${hosturl}$args?pretty=true'"
+      cmd="agave-curl -sk -H \"${authheader}\" -X POST -d \"frequency=${frequency}&active=${active}&updateSystemStatus=${updateSystemStatus}&target=${systemId}\" '${hosturl}$args?pretty=true'"
 
       if ((veryverbose)); then
         [ "$piped" -eq 0 ] && log "Calling $cmd"
       fi
 
-      response=`curl -sk -H "${authheader}" -X POST -d "frequency=${frequency}&active=${active}&updateSystemStatus=${updateSystemStatus}&target=${systemId}" "${hosturl}$args?pretty=true"`
+      response=`agave-curl -sk -H "${authheader}" -X POST -d "frequency=${frequency}&active=${active}&updateSystemStatus=${updateSystemStatus}&target=${systemId}" "${hosturl}$args?pretty=true"`
 
     # reading from stdin
     elif [[ "$filetoupload" == "-"  ]]; then
 
-      cmd="curl -sk -H \"${authheader}\" -H \"Content-Type: application/json\" -X POST --data-binary @- '${hosturl}${args}?pretty=true'"
+      cmd="agave-curl -sk -H \"${authheader}\" -H \"Content-Type: application/json\" -X POST --data-binary @- '${hosturl}${args}?pretty=true'"
 
       if ((veryverbose)); then
         [ "$piped" -eq 0 ] && log "Calling $cmd"
       fi
 
       # make sure we specify content type as application/json
-      response=`curl -sk -H "${authheader}" -H "Content-Type: application/json" -X POST --data-binary @- "${hosturl}${args}?pretty=true"`
+      response=`agave-curl -sk -H "${authheader}" -H "Content-Type: application/json" -X POST --data-binary @- "${hosturl}${args}?pretty=true"`
 
     # check file exists
     elif [[ ! -e "$filetoupload" ]]; then
@@ -124,13 +124,13 @@ main() {
     # standard file upload
     else
 
-      cmd="curl -sk -H \"${authheader}\" -X POST -F \"fileToUpload=@$filetoupload\" '${hosturl}$args?pretty=true'"
+      cmd="agave-curl -sk -H \"${authheader}\" -X POST -F \"fileToUpload=@$filetoupload\" '${hosturl}$args?pretty=true'"
 
       if ((veryverbose)); then
         [ "$piped" -eq 0 ] && log "Calling $cmd"
       fi
 
-      response=`curl -sk -H "${authheader}" -X POST -F "fileToUpload=@$filetoupload" "${hosturl}$args?pretty=true"`
+      response=`agave-curl -sk -H "${authheader}" -X POST -F "fileToUpload=@$filetoupload" "${hosturl}$args?pretty=true"`
 
     fi
 

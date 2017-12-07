@@ -27,8 +27,8 @@ $(basename $0) [OPTION]... [CLIENT_NAME]
 List all API clients registered to the authenticated user.
 
  Options:
-  -u, --apiusername    Agave tenant username. This will override the value of AGAVE_USERNAME in your environment.
-  -p, --apipassword    Agave tenant password. This will override the value of AGAVE_PASSWORD in your environment.
+  -u, --apiusername    API apiusername
+  -p, --apipassword    API apipassword
   -l, --limit          Maximum number of results to return
   -o, --offset         Number of results to skip from the start
   -H, --hosturl        URL of the service
@@ -62,13 +62,13 @@ main() {
 		clientsurl="${hosturl}?pretty=true$(pagination)"
 	fi
 
-	cmd="curl -sku \"${apiusername}:xxxx\" '${clientsurl}'"
+	cmd="agave-curl -sku \"${apiusername}:xxxx\" '${clientsurl}'"
 
 	if ((veryverbose)); then
 		[ "$piped" -eq 0 ] && log "Calling $cmd"
 	fi
 
-	response=`curl -sku "${apiusername}:${apipassword}" "${clientsurl}"`
+	response=`agave-curl -sku "${apiusername}:${apipassword}" "${clientsurl}"`
 
 	if [[ $(jsonquery "$response" "status") = 'success' ]]; then
 		result=$(format_api_json "$response")

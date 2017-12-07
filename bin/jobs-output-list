@@ -65,13 +65,13 @@ main() {
 		jobid=${args[0]}
 		path=${args[1]}
 
-    cmd="curl -sk -H \"${authheader}\" '${hosturl}${jobid}/outputs/listings/${path}?pretty=true$(pagination)'"
+    cmd="agave-curl -sk -H \"${authheader}\" '${hosturl}${jobid}/outputs/listings/${path}?pretty=true$(pagination)'"
 
 		if ((veryverbose)); then
 			[ "$piped" -eq 0 ] && log "Calling $cmd"
 		fi
 
-		response=`curl -sk -H "${authheader}" "${hosturl}${jobid}/outputs/listings/${path}?pretty=true$(pagination)"`
+		response=`agave-curl -sk -H "${authheader}" "${hosturl}${jobid}/outputs/listings/${path}?pretty=true$(pagination)"`
 
 		if [[ $(jsonquery "$response" "status") = 'success' ]]; then
 			result=$(format_api_json "$response")

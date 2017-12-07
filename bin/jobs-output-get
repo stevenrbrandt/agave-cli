@@ -109,7 +109,7 @@ main() {
         fileslistingurl="$hosturl${jobid}/outputs/listings/${path}"
 
 
-        response=`curl -sk -H "${authheader}" "${fileslistingurl}"`
+        response=`agave-curl -sk -H "${authheader}" "${fileslistingurl}"`
 
         if [[ $(jsonquery "$response" "status") = 'success' ]]; then
 
@@ -235,7 +235,7 @@ main() {
 
       else
 
-        cmd="curl -k -H \"${authheader}\" ${filerange} ${outputarg} '${filesurl}'"
+        cmd="agave-curl -k -H \"${authheader}\" ${filerange} ${outputarg} '${filesurl}'"
 
         if ((veryverbose)); then
          [ "$piped" -eq 0 ] && log "Calling $cmd"
@@ -249,7 +249,7 @@ main() {
           [ "$piped" -eq 0 ] && out "Downloading ${path} ..."
         fi
 
-        curl -# -k -H "${authheader}" ${filerange} ${outputarg} "${filesurl}"
+        agave-curl -# -k -H "${authheader}" ${filerange} ${outputarg} "${filesurl}"
         #touch $filename
 
         if [ "$?" -eq 0 ] && [ ! -f "$filename" ]; then

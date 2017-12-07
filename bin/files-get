@@ -105,7 +105,7 @@ main() {
           fileslistingurl="${hosturl}listings/${args}"
         fi
 
-        response=`curl -sk -H "${authheader}" "${fileslistingurl%/}"`
+        response=`agave-curl -sk -H "${authheader}" "${fileslistingurl%/}"`
 
         if [[ $(jsonquery "$response" "status") = 'success' ]]; then
 
@@ -202,7 +202,7 @@ main() {
 
     else
        # set -x
-      cmd="curl -k -H \"${authheader}\" ${filerange} ${outputarg} '${filesurl}'"
+      cmd="agave-curl -k -H \"${authheader}\" ${filerange} ${outputarg} '${filesurl}'"
 
 
       if ((veryverbose)); then
@@ -220,7 +220,7 @@ main() {
         [ "$piped" -eq 0 ] && out "Downloading $args ..."
       fi
 
-      curl -# -k -H "${authheader}" ${filerange} ${outputarg} "${filesurl}"
+      agave-curl -# -k -H "${authheader}" ${filerange} ${outputarg} "${filesurl}"
 
       if [ "$?" -eq 0 ] && [ ! -f "$filename" ]; then
         if ((verbose)); then

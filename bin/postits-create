@@ -100,13 +100,13 @@ main() {
 		post_options="noauth=$noauth&$post_options"
 	fi
 
-	cmd="curl -sk -H \"${authheader}\" -X POST -d \"$post_options\" -d \"url=${args}\" '${hosturl}?pretty=true'"
+	cmd="agave-curl -sk -H \"${authheader}\" -X POST -d \"$post_options\" -d \"url=${args}\" '${hosturl}?pretty=true'"
 
 	if ((veryverbose)); then
 		[ "$piped" -eq 0 ] && log "Calling $cmd"
 	fi
 
-	response=`curl -sk -H "${authheader}" -X POST -d "${post_options}" -d "url=${args}" "${hosturl}?pretty=true"`
+	response=`agave-curl -sk -H "${authheader}" -X POST -d "${post_options}" -d "url=${args}" "${hosturl}?pretty=true"`
 
 	if [[ $(jsonquery "$response" "status") = 'success' ]]; then
 		result=$(format_api_json "$response")
