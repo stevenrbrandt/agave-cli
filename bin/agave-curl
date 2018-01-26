@@ -89,7 +89,7 @@ if args.data_urlencode:
 
 if args.data_binary:
     data = loader(args.data_binary)
-    if type(data) == file:
+    if hasattr(data,"read"):
         data = data.read()
 
 if args.user:
